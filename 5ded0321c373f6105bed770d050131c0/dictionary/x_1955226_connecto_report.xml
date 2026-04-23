@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element db_object_id="8bdad940c3844b505bed770d05013180" label="Report" max_length="40" name="x_1955226_connecto_report" type="collection">
+        <element label="folderid" max_length="80" name="folderid" type="string"/>
+        <element attributes="edge_encryption_enabled=true" default="javascript:global.getNextObjNumberPadded();" label="Number" max_length="40" name="number" type="string"/>
+        <element label="name" max_length="40" name="name" type="string"/>
+        <element label="shared with" max_length="1024" name="shared_with" reference="sys_user" type="glide_list"/>
+        <element label="description" max_length="80" name="description" type="string"/>
+        <element default="true" label="Is Public" max_length="255" name="is_public" type="boolean"/>
+    </element>
+</database>

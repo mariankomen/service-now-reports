@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element db_object_id="6741c4f9c3f7f6105bed770d050131bb" label="Folder" max_length="40" name="x_1955226_connecto_folder" type="collection">
+        <element attributes="edge_encryption_enabled=true" default="javascript:global.getNextObjNumberPadded();" label="Number" max_length="40" name="number" type="string"/>
+        <element label="Parent Folder Id" max_length="32" name="parent_folder_id" reference="x_1955226_connecto_folder" type="reference"/>
+        <element label="shared_with" max_length="1024" name="shared_with" reference="sys_user" type="glide_list"/>
+        <element label="Description" max_length="120" name="description" type="string"/>
+        <element default="true" display="true" label="Is Public" max_length="255" name="is_public" type="boolean"/>
+        <element label="owner" max_length="32" name="owner" reference="sys_user" type="reference"/>
+        <element default="javascript:current.getTableName();" label="Class" max_length="80" name="sys_class_name" type="sys_class_name"/>
+        <element label="Name" max_length="40" name="name" type="string"/>
+        <index name="index">
+            <element name="owner"/>
+        </index>
+        <index name="index2">
+            <element name="sys_class_name"/>
+        </index>
+    </element>
+</database>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_module">
+    <sys_module action="INSERT_OR_UPDATE">
+        <content><![CDATA[{
+  "$schema": "http://cyclonedx.org/schema/bom-1.6.schema.json",
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "version": 1,
+  "serialNumber": "urn:uuid:d956be02-18f0-49fd-9a5a-7b6f23a448c6",
+  "metadata": {
+    "timestamp": "2026-04-15T11:03:28.888Z",
+    "tools": {
+      "components": [
+        {
+          "type": "library",
+          "name": "sdk-build-plugins",
+          "group": "@servicenow",
+          "version": "4.4.0",
+          "author": "ServiceNow"
+        }
+      ]
+    },
+    "component": {
+      "type": "application",
+      "name": "x-1955226-connector",
+      "version": "1.0.0",
+      "bom-ref": "pkg:servicenow/x-1955226-connector@1.0.0?sys_scope_id=5ded0321c373f6105bed770d050131c0",
+      "description": "connector",
+      "licenses": [
+        {
+          "license": {
+            "name": "UNLICENSED"
+          }
+        }
+      ],
+      "purl": "pkg:servicenow/x-1955226-connector@1.0.0?sys_scope_id=5ded0321c373f6105bed770d050131c0"
+    }
+  },
+  "components": [],
+  "dependencies": [
+    {
+      "ref": "pkg:servicenow/x-1955226-connector@1.0.0?sys_scope_id=5ded0321c373f6105bed770d050131c0"
+    }
+  ]
+}]]></content>
+        <external_source>false</external_source>
+        <path>x_1955226_connecto/x-1955226-connector/1.0.0/bom.json</path>
+        <sys_class_name>sys_module</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-03-23 09:50:51</sys_created_on>
+        <sys_id>68c45ebcf1084d258a268d3367dc6e5b</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>x_1955226_connecto/x-1955226-connector/1.0.0/bom.json</sys_name>
+        <sys_package display_value="connector" source="x_1955226_connecto">5ded0321c373f6105bed770d050131c0</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="connector">5ded0321c373f6105bed770d050131c0</sys_scope>
+        <sys_update_name>sys_module_68c45ebcf1084d258a268d3367dc6e5b</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-03-23 09:50:51</sys_updated_on>
+    </sys_module>
+</record_update>
