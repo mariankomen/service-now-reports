@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_ws_operation">
+    <sys_ws_operation action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <consumes>application/json,application/xml,text/xml</consumes>
+        <consumes_customized>false</consumes_customized>
+        <default_operation_uri/>
+        <enforce_acl/>
+        <http_method>GET</http_method>
+        <name>Get My/Shared/Public Folders</name>
+        <operation_script><![CDATA[(function process(request, response) {
+    try {
+        var folderType = ("" + request.queryParams.type + "" || '')
+            .toLowerCase()
+            .replace(/\s/g, '');
+
+        var folderId = request.queryParams.folderId;
+
+        gs.info('Folder type: ' + folderType);
+        gs.info('Folder ID: ' + folderId);
+
+        var userId = gs.getUserID();
+        var gr = new GlideRecord('x_1955226_connecto_folder');
+        gr.addActiveQuery();
+
+        // ]]>🔥<![CDATA[ 1. If folderId is provided → ignore type and filter by ID
+        if (folderId) {
+            gr.addQuery('parent_folder_id', folderId);
+
+        // ]]>🔹<![CDATA[ 2. Otherwise apply type filters
+        } else if (folderType === 'createdbymefolders') {
+            gr.addQuery('owner', userId);
+
+        } else if (folderType === 'sharedwithmefolders') {
+            gr.addQuery('shared_with', 'CONTAINS', userId);
+
+        } else if (folderType === 'publicfolders') {
+            gr.addQuery('is_public', true);
+
+        } else {
+            gs.info('No filter applied, returning all folders');
+        }
+
+        gs.info('Encoded query: ' + gr.getEncodedQuery());
+
+        gr.query();
+
+        var folders = [];
+        while (gr.next()) {
+            folders.push({
+                sys_id: gr.getValue('sys_id'),
+                name: gr.getValue('name'),
+                parent_folder_id: gr.getValue('parent_folder_id'),
+                uniqueid: gr.getValue('uniqueid'),
+                owner: gr.getValue('owner'),
+                shared_with: gr.getValue('shared_with'),
+                is_public: gr.getValue('is_public') === 'true',
+				createdDate: gr.getValue('sys_created_on'),
+				description: gr.getValue('description')
+            });
+        }
+
+        response.setStatus(200);
+        response.setBody({ success: true, folders });
+
+    } catch (err) {
+        response.setStatus(500);
+        response.setBody({ success: false, message: err.message });
+    }
+})(request, response);]]></operation_script>
+        <operation_uri>/api/x_1955226_connecto/connector_api/folders</operation_uri>
+        <produces>application/json,application/xml,text/xml</produces>
+        <produces_customized>false</produces_customized>
+        <relative_path>/folders</relative_path>
+        <request_example/>
+        <requires_acl_authorization>true</requires_acl_authorization>
+        <requires_authentication>true</requires_authentication>
+        <requires_snc_internal_role>true</requires_snc_internal_role>
+        <short_description/>
+        <sys_class_name>sys_ws_operation</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-03-25 14:43:37</sys_created_on>
+        <sys_id>52a4a69ac33b3e105bed770d05013193</sys_id>
+        <sys_mod_count>14</sys_mod_count>
+        <sys_name>Get My/Shared/Public Folders</sys_name>
+        <sys_package display_value="connector" source="x_1955226_connecto">5ded0321c373f6105bed770d050131c0</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="connector">5ded0321c373f6105bed770d050131c0</sys_scope>
+        <sys_update_name>sys_ws_operation_52a4a69ac33b3e105bed770d05013193</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-03-30 11:58:04</sys_updated_on>
+        <web_service_definition display_value="Connector API">4fa51186c333ba105bed770d05013173</web_service_definition>
+        <web_service_version/>
+    </sys_ws_operation>
+</record_update>

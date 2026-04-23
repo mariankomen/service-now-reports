@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update>
+    <sys_ui_list parent="" relationship="" sys_domain="global" table="x_1955226_connecto_folder" version="2" view="">
+        <sys_ui_list_element action="INSERT_OR_UPDATE">
+            <average_value>false</average_value>
+            <element>sys_created_on</element>
+            <list_id display_value="x_1955226_connecto_folder" element="NULL" name="x_1955226_connecto_folder" parent="NULL" relationship="NULL" sys_domain="global" view="Default view">c0510cb9c3f7f6105bed770d050131bb</list_id>
+            <max_value>false</max_value>
+            <min_value>false</min_value>
+            <position>0</position>
+            <sum>false</sum>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2026-03-23 13:31:43</sys_created_on>
+            <sys_id>40510cb9c3f7f6105bed770d050131bf</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2026-03-23 13:31:43</sys_updated_on>
+        </sys_ui_list_element>
+        <sys_ui_list_element action="INSERT_OR_UPDATE">
+            <average_value>false</average_value>
+            <element>sys_created_by</element>
+            <list_id display_value="x_1955226_connecto_folder" element="NULL" name="x_1955226_connecto_folder" parent="NULL" relationship="NULL" sys_domain="global" view="Default view">c0510cb9c3f7f6105bed770d050131bb</list_id>
+            <max_value>false</max_value>
+            <min_value>false</min_value>
+            <position>1</position>
+            <sum>false</sum>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2026-03-23 13:31:43</sys_created_on>
+            <sys_id>40510cb9c3f7f6105bed770d050131c0</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2026-03-23 13:31:43</sys_updated_on>
+        </sys_ui_list_element>
+        <sys_ui_list_element action="INSERT_OR_UPDATE">
+            <average_value>false</average_value>
+            <element>sys_updated_on</element>
+            <list_id display_value="x_1955226_connecto_folder" element="NULL" name="x_1955226_connecto_folder" parent="NULL" relationship="NULL" sys_domain="global" view="Default view">c0510cb9c3f7f6105bed770d050131bb</list_id>
+            <max_value>false</max_value>
+            <min_value>false</min_value>
+            <position>2</position>
+            <sum>false</sum>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2026-03-23 13:31:43</sys_created_on>
+            <sys_id>c4510cb9c3f7f6105bed770d050131c0</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2026-03-23 13:31:43</sys_updated_on>
+        </sys_ui_list_element>
+        <sys_ui_list_element action="INSERT_OR_UPDATE">
+            <average_value>false</average_value>
+            <element>sys_updated_by</element>
+            <list_id display_value="x_1955226_connecto_folder" element="NULL" name="x_1955226_connecto_folder" parent="NULL" relationship="NULL" sys_domain="global" view="Default view">c0510cb9c3f7f6105bed770d050131bb</list_id>
+            <max_value>false</max_value>
+            <min_value>false</min_value>
+            <position>3</position>
+            <sum>false</sum>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2026-03-23 13:31:43</sys_created_on>
+            <sys_id>4c510cb9c3f7f6105bed770d050131c0</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2026-03-23 13:31:43</sys_updated_on>
+        </sys_ui_list_element>
+        <sys_ui_list_element action="INSERT_OR_UPDATE">
+            <average_value>false</average_value>
+            <element>sys_mod_count</element>
+            <list_id display_value="x_1955226_connecto_folder" element="NULL" name="x_1955226_connecto_folder" parent="NULL" relationship="NULL" sys_domain="global" view="Default view">c0510cb9c3f7f6105bed770d050131bb</list_id>
+            <max_value>false</max_value>
+            <min_value>false</min_value>
+            <position>4</position>
+            <sum>false</sum>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2026-03-23 13:31:43</sys_created_on>
+            <sys_id>c0510cb9c3f7f6105bed770d050131c1</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2026-03-23 13:31:43</sys_updated_on>
+        </sys_ui_list_element>
+        <sys_ui_list action="INSERT_OR_UPDATE">
+            <average_value>false</average_value>
+            <element/>
+            <max_value>false</max_value>
+            <min_value>false</min_value>
+            <name>x_1955226_connecto_folder</name>
+            <parent/>
+            <position/>
+            <relationship/>
+            <sum>false</sum>
+            <sys_class_name>sys_ui_list</sys_class_name>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2026-03-23 13:31:43</sys_created_on>
+            <sys_domain>global</sys_domain>
+            <sys_domain_path>/</sys_domain_path>
+            <sys_id>c0510cb9c3f7f6105bed770d050131bb</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_name>x_1955226_connecto_folder</sys_name>
+            <sys_package display_value="connector" source="x_1955226_connecto">5ded0321c373f6105bed770d050131c0</sys_package>
+            <sys_policy/>
+            <sys_scope display_value="connector">5ded0321c373f6105bed770d050131c0</sys_scope>
+            <sys_update_name>sys_ui_list_x_1955226_connecto_folder_null</sys_update_name>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2026-03-23 13:31:43</sys_updated_on>
+            <sys_user/>
+            <view display_value="Default view" name="NULL">Default view</view>
+            <view_name/>
+        </sys_ui_list>
+    </sys_ui_list>
+</record_update>

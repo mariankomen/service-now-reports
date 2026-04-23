@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_ws_operation">
+    <sys_ws_operation action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <consumes>application/json,application/xml,text/xml</consumes>
+        <consumes_customized>false</consumes_customized>
+        <default_operation_uri/>
+        <enforce_acl/>
+        <http_method>GET</http_method>
+        <name>Get Credentials</name>
+        <operation_script><![CDATA[(function process(request, response) {
+    try {
+        var gr = new GlideRecord('x_1955226_connecto_connection');
+        gr.setLimit(1);
+        gr.query();
+
+        if (gr.next()) {
+            response.setStatus(200);
+            response.setBody({
+                success: true,
+                data: {
+                    sys_id: gr.getUniqueValue(),
+                    baseUrl: gr.getValue('base_url'),
+                    clientId: gr.getValue('client_id'),
+                    clientSecret: gr.getValue('client_secret')
+                }
+            });
+        } else {
+            response.setStatus(404);
+            response.setBody({
+                success: false,
+                message: 'Connection not configured'
+            });
+        }
+
+    } catch (error) {
+        response.setStatus(500);
+        response.setBody({
+            success: false,
+            message: error.message
+        });
+    }
+})(request, response);]]></operation_script>
+        <operation_uri>/api/x_1955226_connecto/connector_api/credentials</operation_uri>
+        <produces>application/json,application/xml,text/xml</produces>
+        <produces_customized>false</produces_customized>
+        <relative_path>/credentials</relative_path>
+        <request_example/>
+        <requires_acl_authorization>true</requires_acl_authorization>
+        <requires_authentication>true</requires_authentication>
+        <requires_snc_internal_role>true</requires_snc_internal_role>
+        <short_description/>
+        <sys_class_name>sys_ws_operation</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-04-01 14:08:18</sys_created_on>
+        <sys_id>badfd6a4c38c4f505bed770d050131f8</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>Get Credentials</sys_name>
+        <sys_package display_value="connector" source="x_1955226_connecto">5ded0321c373f6105bed770d050131c0</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="connector">5ded0321c373f6105bed770d050131c0</sys_scope>
+        <sys_update_name>sys_ws_operation_badfd6a4c38c4f505bed770d050131f8</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-04-01 14:08:18</sys_updated_on>
+        <web_service_definition display_value="Connector API">4fa51186c333ba105bed770d05013173</web_service_definition>
+        <web_service_version/>
+    </sys_ws_operation>
+</record_update>

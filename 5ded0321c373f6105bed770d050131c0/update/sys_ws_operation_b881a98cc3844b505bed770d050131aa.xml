@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_ws_operation">
+    <sys_ws_operation action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <consumes>application/json,application/xml,text/xml</consumes>
+        <consumes_customized>false</consumes_customized>
+        <default_operation_uri/>
+        <enforce_acl/>
+        <http_method>GET</http_method>
+        <name>Get Reports</name>
+        <operation_script><![CDATA[(function process(request, response) {
+    try {
+        var folderType = ("" + request.queryParams.type + "" || '')
+            .toLowerCase()
+            .replace(/\s/g, '');
+
+        var folderId = request.queryParams.folderId;
+
+        gs.info('Folder type: ' + folderType);
+        gs.info('Folder ID: ' + folderId);
+
+        var userId = gs.getUserID();
+        var gr = new GlideRecord('x_1955226_connecto_report');
+        gr.addActiveQuery();
+
+        // ]]>🔥<![CDATA[ 1. If folderId is provided → ignore type and filter by ID
+        if (folderId) {
+            gr.addQuery('folderid', folderId);
+
+        // ]]>🔹<![CDATA[ 2. Otherwise apply type filters
+        } else if (folderType === 'createdbymereports') {
+            gr.addQuery('sys_created_by', userId);
+
+        } else if (folderType === 'sharedwithmereports') {
+            gr.addQuery('shared_with', 'CONTAINS', userId);
+
+        } else if (folderType === 'publicreports') {
+            gr.addQuery('is_public', true);
+
+        } else {
+            gs.info('No filter applied, returning all reports');
+        }
+
+        gs.info('Encoded query: ' + gr.getEncodedQuery());
+
+        gr.query();
+
+        var reports = [];
+        while (gr.next()) {
+			
+            reports.push({
+                sys_id: gr.getValue('sys_id'),
+                name: gr.getValue('name'),
+                folderid: gr.getValue('folderid'),
+                shared_with: gr.getValue('shared_with'),
+                is_public: gr.getValue('is_public') === 'true',
+				createdDate: gr.getValue('sys_created_on'),
+				description: gr.getValue('description')
+            });
+        }
+
+        response.setStatus(200);
+        response.setBody({ success: true, reports });
+
+    } catch (err) {
+        response.setStatus(500);
+        response.setBody({ success: false, message: err.message });
+    }
+})(request, response);]]></operation_script>
+        <operation_uri>/api/x_1955226_connecto/connector_api/reports</operation_uri>
+        <produces>application/json,application/xml,text/xml</produces>
+        <produces_customized>false</produces_customized>
+        <relative_path>/reports</relative_path>
+        <request_example/>
+        <requires_acl_authorization>true</requires_acl_authorization>
+        <requires_authentication>true</requires_authentication>
+        <requires_snc_internal_role>true</requires_snc_internal_role>
+        <short_description/>
+        <sys_class_name>sys_ws_operation</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-03-30 20:23:18</sys_created_on>
+        <sys_id>b881a98cc3844b505bed770d050131aa</sys_id>
+        <sys_mod_count>2</sys_mod_count>
+        <sys_name>Get Reports</sys_name>
+        <sys_package display_value="connector" source="x_1955226_connecto">5ded0321c373f6105bed770d050131c0</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="connector">5ded0321c373f6105bed770d050131c0</sys_scope>
+        <sys_update_name>sys_ws_operation_b881a98cc3844b505bed770d050131aa</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-03-30 20:32:59</sys_updated_on>
+        <web_service_definition display_value="Connector API">4fa51186c333ba105bed770d05013173</web_service_definition>
+        <web_service_version/>
+    </sys_ws_operation>
+</record_update>

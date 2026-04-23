@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>package_private</access>
+        <active>true</active>
+        <api_name>x_1955226_connecto.MyReqyestUtils</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description/>
+        <mobile_callable>false</mobile_callable>
+        <name>MyReqyestUtils</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var MyReqyestUtils = Class.create();
+MyReqyestUtils.prototype = {
+    initialize: function() {
+    },
+    testLog: function(){
+        gs.info("It worked");
+    },
+	testLog2: function(){
+        gs.info("It worked2");
+    },
+    type: 'MyReqyestUtils'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-03-23 10:05:13</sys_created_on>
+        <sys_id>9f02dfa5c373f6105bed770d0501312a</sys_id>
+        <sys_mod_count>1</sys_mod_count>
+        <sys_name>MyReqyestUtils</sys_name>
+        <sys_package display_value="connector" source="x_1955226_connecto">5ded0321c373f6105bed770d050131c0</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="connector">5ded0321c373f6105bed770d050131c0</sys_scope>
+        <sys_update_name>sys_script_include_9f02dfa5c373f6105bed770d0501312a</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-03-23 10:10:51</sys_updated_on>
+    </sys_script_include>
+</record_update>

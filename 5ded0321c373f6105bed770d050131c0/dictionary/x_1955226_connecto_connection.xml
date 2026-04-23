@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element db_object_id="be53c550c380cb505bed770d050131c5" label="Connection" max_length="40" name="x_1955226_connecto_connection" type="collection">
+        <element label="Client Id" max_length="120" name="client_id" type="string"/>
+        <element attributes="edge_encryption_enabled=true" default="javascript:global.getNextObjNumberPadded();" label="Number" max_length="40" name="number" type="string"/>
+        <element label="Client Secret" max_length="120" name="client_secret" type="string"/>
+        <element label="Base Url" max_length="240" name="base_url" type="string"/>
+    </element>
+</database>

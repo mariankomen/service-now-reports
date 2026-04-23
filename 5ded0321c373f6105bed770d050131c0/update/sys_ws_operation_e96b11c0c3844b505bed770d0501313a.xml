@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_ws_operation">
+    <sys_ws_operation action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <consumes>application/json,application/xml,text/xml</consumes>
+        <consumes_customized>false</consumes_customized>
+        <default_operation_uri/>
+        <enforce_acl/>
+        <http_method>POST</http_method>
+        <name>Report</name>
+        <operation_script><![CDATA[(function process(request, response) {
+    try {
+        var body = request.body.data;
+
+        var gr = new GlideRecord('x_1955226_connecto_report');
+        gr.initialize();
+
+        gr.name = body.name;
+        gr.folderid = body.folderid;
+		gr.description = body.description;
+
+        var sysId = gr.insert();
+
+        response.setStatus(201);
+        response.setBody({
+            success: true,
+            sys_id: sysId
+        });
+
+    } catch (error) {
+        response.setStatus(500);
+        response.setBody({
+            success: false,
+            message: error.message
+        });
+    }
+})(request, response);]]></operation_script>
+        <operation_uri>/api/x_1955226_connecto/connector_api/report</operation_uri>
+        <produces>application/json,application/xml,text/xml</produces>
+        <produces_customized>false</produces_customized>
+        <relative_path>/report</relative_path>
+        <request_example/>
+        <requires_acl_authorization>true</requires_acl_authorization>
+        <requires_authentication>true</requires_authentication>
+        <requires_snc_internal_role>true</requires_snc_internal_role>
+        <short_description/>
+        <sys_class_name>sys_ws_operation</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-03-30 19:53:12</sys_created_on>
+        <sys_id>e96b11c0c3844b505bed770d0501313a</sys_id>
+        <sys_mod_count>1</sys_mod_count>
+        <sys_name>Report</sys_name>
+        <sys_package display_value="connector" source="x_1955226_connecto">5ded0321c373f6105bed770d050131c0</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="connector">5ded0321c373f6105bed770d050131c0</sys_scope>
+        <sys_update_name>sys_ws_operation_e96b11c0c3844b505bed770d0501313a</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-03-30 19:53:19</sys_updated_on>
+        <web_service_definition display_value="Connector API">4fa51186c333ba105bed770d05013173</web_service_definition>
+        <web_service_version/>
+    </sys_ws_operation>
+</record_update>
