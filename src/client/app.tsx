@@ -101,7 +101,7 @@ export default function App() {
 	return (
 		<>
 			<div><Toaster position="top-right"/></div>
-			Hi1
+			Hi1121212
 			{!authorized ? (
 				<AuthScreen onAuthorized={() => setAuthorized(true)}/>
 			) : (
