@@ -1,0 +1,134 @@
+.back-btn{
+    background: none;
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 16px;
+    border-radius: 4px;
+}
+.back-btn:hover{
+    cursor: pointer;
+    background-color: #F4F5F7;
+    transition: 0.1 ease;
+}
+.secondaryBtnStyle:hover{
+    cursor: pointer;
+    background-color: #F4F5F7;
+    transition: 0.1 ease;
+}
+.secondaryBtnStyle{
+    background-color: white;
+    color: #42526E;
+    border: 1px solid #DFE1E6;
+    border-radius: 3px;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-size: 13px;
+}
+.primaryButtonStyle { 
+    background-color: #0052CC;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-size: 13px; 
+};
+.primaryButtonStyle:hover{
+    cursor: pointer;
+    background-color: #0646a5;
+    transition: 0.1 ease;
+}
+/* ─── Card Header ─────────────────────────────────────────────────────────── */
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: #172B4D;
+  margin-bottom: 15px;
+}
+
+.card-header-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #172B4D;
+}
+
+/* ─── Toggle Switch ───────────────────────────────────────────────────────── */
+
+.toggle-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.toggle-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #42526E;
+}
+
+.toggle-track {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  border-radius: 10px;
+  background-color: #DFE1E6;
+  transition: background-color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.toggle-track.active {
+  background-color: #0052CC;
+}
+
+.toggle-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background-color: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease;
+}
+
+.toggle-track.active .toggle-thumb {
+  transform: translateX(16px);
+}
+/* ─── Table Loading Overlay ───────────────────────────────────────────────── */
+
+.table-card-wrapper {
+  position: relative;
+}
+
+.table-loading-overlay {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(255, 255, 255, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  border-radius: 3px;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #DFE1E6;
+  border-top-color: #0052CC;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

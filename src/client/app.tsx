@@ -1,56 +1,75 @@
 import { useState, useMemo } from 'react';
 import { CreateFolderModal } from './components/Modals';
 import { CreateReportModal } from './components/Modals';
+import { MoveToFolderModal } from './components/Modals';
+import { ConfirmDeleteModal } from './components/Modals';
 import ReportList from './components/ReportList';
 import Sidebar from './components/Sidebar';
-import {type FolderType, useFolders } from './hooks/useFolders';
-import {type ReportType, useReports } from './hooks/useReports';
-import  { type ReportListItem } from './interfaces';
+import { type FolderType, useFolders } from './hooks/useFolders';
+import { type ReportType, useReports } from './hooks/useReports';
+import { type ReportListItem } from './interfaces';
+import type { Report } from './interfaces';
 import ReportBuilder from './components/ReportBuilder/ReportBuilder';
-import {type FilterConfig} from './components/ReportBuilder/ReportBuilder'
 import AuthScreen from './components/AuthScreen';
 import toast, { Toaster } from 'react-hot-toast';
+import ReportService from './services/ServiceNow/report-service';
+import { successToast, errorToast } from './utils/toast';
+import { addToRecent } from './utils/recent';
 
+const VALID_TABS = ['connection', 'main', 'support', 'privacy'];
 
 export default function App() {
-	const [authorized, setAuthorized] = useState(false);
-	const [viewMode, setViewMode] = useState('list'); 
-	const [activeReport, setActiveReport] = useState<
-	{ name?: string; config?: Partial<FilterConfig> } | null
-	>(null);
-	const [activeTabId, setActiveTabId] = useState('recentreports');
-	const [activeTabName, setActiveTabName] = useState('Recent');
+	const urlParams = new URLSearchParams(window.location.search);
+    const initialTab = VALID_TABS.includes(urlParams.get('tab') || '')
+        ? urlParams.get('tab')!
+        : 'connection';
+
+	const [authorized, setAuthorized]         = useState(false);
+	const [viewMode, setViewMode]             = useState('list');
+	const [activeReportId, setActiveReportId] = useState<string>('');
+	const [activeTabId, setActiveTabId]       = useState('recentreports');
+	const [activeTabName, setActiveTabName]   = useState('Recent');
+	const [openInRunMode, setOpenInRunMode]   = useState(false);
+	const [moveReportItem, setMoveReportItem] = useState<ReportListItem | null>(null);
+	const [deleteItem, setDeleteItem] = useState<ReportListItem | null>(null);
+
+	// ─── Modals ───────────────────────────────────────────────────────────────
+	const [isFolderModalOpen, setFolderModalOpen]   = useState(false);
+	const [isReportModalOpen, setReportModalOpen]   = useState(false);
+	const [editFolderItem, setEditFolderItem]       = useState<ReportListItem | null>(null);
+
+	// ─── Tab type detection ───────────────────────────────────────────────────
 	const isFolderType = [
-		'rootfolders',
-		'createdbymefolders',
-		'sharedwithmefolders',
-		'publicfolders'
+		'rootfolders', 'createdbymefolders', 'sharedwithmefolders', 'publicfolders'
 	].includes(activeTabId);
+
 	const isReportType = [
-		'rootreports',
-		'createdbymereports',
-		'sharedwithmereports',
-		'publicreports'
+		'rootreports', 'createdbymereports', 'sharedwithmereports',
+		'publicreports', 'favorites', 'recentreports', 'privatereports'
 	].includes(activeTabId);
 
-	const { folders, createFolder, refreshFolders } = useFolders({
-		type: isFolderType ? activeTabId as FolderType: undefined,
-		folderId: isFolderType ? undefined : activeTabId
+	// ─── Data hooks ───────────────────────────────────────────────────────────
+	const { folders, createFolder, refreshFolders, updateFolder, deleteFolder } = useFolders({
+		type: isFolderType ? activeTabId as FolderType : undefined,
+		folderId: isFolderType ? undefined : activeTabId,
 	});
-	const { reports, createReport, refreshReports } = useReports({
-		type: isReportType ? activeTabId as ReportType: undefined,
-		folderId: isReportType ? undefined : activeTabId
-	});
-	// const [reports, setReports] = useState<Report[]>([]);
 
+	const { reports, createReport, refreshReports, deleteReport } = useReports({
+		type: isReportType ? activeTabId as ReportType : undefined,
+		folderId: isReportType ? undefined : activeTabId,
+	});
+
+	// ─── List items ───────────────────────────────────────────────────────────
 	const listViewItems: ReportListItem[] = useMemo(() => {
 		const folderItems: ReportListItem[] = folders.map(f => ({
 			id: f.id,
 			name: f.name,
 			description: f.description ?? '',
 			folderName: f.name,
-			createdDate: f.createdDate ?? '', // folders may not have createdAt
+			createdDate: f.createdDate ?? '',
 			isFolder: true,
+			userRole: f.userRole,
+			isPublic: f.isPublic,
 		}));
 
 		const reportItems: ReportListItem[] = reports.map(r => ({
@@ -60,96 +79,226 @@ export default function App() {
 			folderName: '',
 			createdDate: r.createdDate ?? '',
 			isFolder: false,
+			salesforceObject: r.salesforceObject,
+			serviceNowObject: r.serviceNowObject,
+			userRole: r.userRole,
+			isPublic: r.isPublic,
 		}));
-		const data = [...folderItems, ...reportItems];
-		return data;
+
+		return [...folderItems, ...reportItems];
 	}, [folders, reports]);
 
-	
+	// ─── Handlers ─────────────────────────────────────────────────────────────
 
-	const [isFolderModalOpen, setFolderModalOpen] = useState(false);
-	const [isReportModalOpen, setReportModalOpen] = useState(false);
-	
-	const handleCreateFolder = async (name: string, parentId: string, description: string) => {
-		await createFolder({ name, parent_folder_id: parentId, description });
+	const handleCreateFolder = async (name: string, parentId: string, description: string, isPublic: boolean) => {
+		try {
+    		await createFolder({ name, parent_folder_id: parentId, description, is_public: isPublic });
+		} catch (e: any) {
+			errorToast(e?.message || 'Failed to create folder.');
+		}
 	};
-	const handleCreateReport = async (name: string, parentId: string, description: string) => {
-		await createReport({ name, folderid: parentId, description });
+
+	const handleCreateReport = async (name: string, parentId: string, description: string, salesforceObjectName: string, serviceNowTableName: string, isPublic: boolean) => {
+		try {
+			const result = await createReport({ name, folderid: parentId, description, salesforceObjectName, serviceNowTableName, isPublic });
+			setActiveReportId(result.sys_id);
+			setOpenInRunMode(false);
+			setViewMode('builder');
+		} catch (e: any) {
+			errorToast(e?.message || 'Failed to create report.');
+		}
+	};
+
+	const handleEditFolder = async (name: string, _parentId: string, _description: string, isPublic: boolean) => {
+		if (!editFolderItem) return;
+		try {
+			await updateFolder({ id: editFolderItem.id, name, is_public: isPublic });
+			successToast('Folder updated successfully.');
+			setEditFolderItem(null);
+		} catch (e: any) {
+			errorToast(e?.message || 'Failed to update folder.');
+		}
+	};
+
+	const handleSidebarNavigate = async (id: string, name: string, isFolder: boolean) => {
+		if (isFolder) {
+			setActiveTabId(id);
+			setActiveTabName(name);
+		} else {
+			const report = reports.find(r => r.id === id);
+			addToRecent({
+				id,
+				name,
+				salesforceObject: report?.salesforceObject,
+				serviceNowObject: report?.serviceNowObject,
+				openedAt: new Date().toISOString(),
+			});
+			setActiveTabId(id);
+			setActiveTabName(name);
+			setViewMode('builder');
+			setActiveReportId(id);
+		}
+	};
+
+	const handleDelete = async () => {
+		if (!deleteItem) return;
+		try {
+			if (deleteItem.isFolder) {
+				await deleteFolder(deleteItem.id);
+				successToast('Folder deleted successfully.');
+			} else {
+				await deleteReport(deleteItem.id);
+				successToast('Report deleted successfully.');
+			}
+			setDeleteItem(null);
+		} catch (e: any) {
+			errorToast(e?.message || 'Failed to delete.');
+		}
+	};
+	const handleRunReport = (report: ReportListItem) => {
+		setOpenInRunMode(true);
+		setActiveReportId(report.id);
 		setViewMode('builder');
 	};
-	const handleSidebarNavigate = async (id : string, name : string) => {
-		setActiveTabId(id);
-		setActiveTabName(name);
-	}
-	const handleOpenReport = async (report: ReportListItem) => {
-		const reportId = report.id;
-		
-	}
-	const handleBackToExplorer = () => {
-		setViewMode('list');
-		setActiveReport(null);
+
+	const handleEditReport = (report: ReportListItem) => {
+		setOpenInRunMode(false);
+		setActiveReportId(report.id);
+		setViewMode('builder');
 	};
 
-	const handleSaveReportConfig = async (newConfig: any) => {
-		if (!activeReport) return;
-		// const newTree = updateReportInTree(tree, activeReport.id, newConfig);
-		// setTree(newTree);
-		// await saveReportsTree(newTree);
-		// alert('Report saved!');
+	const handleBackToExplorer = (folderId: string) => {
+		setActiveTabId(folderId);
+		setViewMode('list');
+		setActiveReportId('');
+		setOpenInRunMode(false);
+		refreshFolders();
+	};
+
+	const handleSaveReportConfig = async (newConfig: any, reportId: string) => {
+		const report: Report = {
+			id: reportId,
+			name: newConfig.name,
+			folderId: 'root',
+			description: newConfig.description,
+			columns: JSON.stringify(newConfig.selectedFields),
+			showChart: newConfig.showChart,
+			chartType: newConfig.chartType,
+			groupBy: JSON.stringify(newConfig?.groupBy),
+			showOnlyRecordsWithSalesforce: newConfig?.showOnlyRecordsWithSalesforce,
+			chartGroupBy: newConfig?.chartGroupBy,
+			filterQuery: newConfig?.filterQuery,
+			filterConditions: JSON.stringify(newConfig?.filterConditions ?? []),
+			filterLogic: newConfig?.filterLogic ?? '', 
+		};
+		if (!reportId) return;
+		try {
+			await ReportService.updateReportById(reportId, report);
+			successToast('Report settings updated successfully.');
+		} catch (e: any) {
+			errorToast(e?.message || 'Failed to save report.');
+		}
+	};
+
+	const handleMoveReport = async (folderId: string) => {
+		if (!moveReportItem) return;
+		try {
+			await ReportService.updateReportById(moveReportItem.id, { 
+				id: moveReportItem.id,
+				folderid: folderId 
+			} as any);
+			successToast('Report moved successfully.');
+			setMoveReportItem(null);
+			refreshReports();
+		} catch (e: any) {
+			errorToast(e?.message || 'Failed to move report.');
+		}
 	};
 
 	return (
 		<>
-			<div><Toaster position="top-right"/></div>
-			Hi1121212123
-			{!authorized ? (
-				<AuthScreen onAuthorized={() => setAuthorized(true)}/>
+			<div><Toaster position="top-right" /></div>
+			{!authorized || initialTab == 'connection' ? (
+				<AuthScreen onAuthorized={() => setAuthorized(true)} />
 			) : (
-				<div style={{ width: '100%', display: 'flex', fontFamily: 'sans-serif' }}>
-			
-				{viewMode === 'list' && (
-					<Sidebar
-						activeTabId={activeTabId}
-						onNavigate={(id, name) => handleSidebarNavigate(id, name)}
-						onOpenFolderModal={() => setFolderModalOpen(true)}
-					/>
-				)}
-				
+				<div style={{ width: '100%', height: '100%', display: 'flex', fontFamily: 'sans-serif' }}>
 
-				<div style={{ width: '100%' }}>
-					{viewMode === 'list' ? (
-					<ReportList
-						reports={listViewItems}
-						folderName={activeTabName}
-						onOpenReport={({id, name}) => handleSidebarNavigate(id, name)}
-						openCreateFolderModal={() => setFolderModalOpen(true)}
-						openCreateReportModal={() => setReportModalOpen(true)}
-					/>
-					) : (
-						<ReportBuilder
-							report={activeReport ?? undefined}
-							onBack={handleBackToExplorer}
-							onSave={handleSaveReportConfig}
+					{viewMode === 'list' && (
+						<Sidebar
+							activeTabId={activeTabId}
+							onNavigate={(id, name) => handleSidebarNavigate(id, name, true)}
+							onOpenFolderModal={() => setFolderModalOpen(true)}
 						/>
 					)}
-					
-				</div>
 
-				<CreateFolderModal
-					isOpen={isFolderModalOpen}
-					onClose={() => setFolderModalOpen(false)}
-					onCreate={handleCreateFolder}
-					folders={folders}
-				/>
-				<CreateReportModal
-					isOpen={isReportModalOpen}
-					onClose={() => setReportModalOpen(false)}
-					onCreate={handleCreateReport}
-					folders={folders}
-				/>
+					<div style={{ width: '100%' }}>
+						{viewMode === 'list' ? (
+							<ReportList
+								reports={listViewItems}
+								folderName={activeTabName}
+								onOpenReport={({ id, name }, isFolder) => handleSidebarNavigate(id, name, isFolder)}
+								openCreateFolderModal={() => setFolderModalOpen(true)}
+								openCreateReportModal={() => setReportModalOpen(true)}
+								onRunReport={handleRunReport}
+								onEditReport={handleEditReport}
+								onEditFolder={setEditFolderItem}
+								onMoveReport={setMoveReportItem}
+								onDeleteItem={setDeleteItem}
+							/>
+						) : (
+							<ReportBuilder
+								reportId={activeReportId ?? undefined}
+								onBack={handleBackToExplorer}
+								onSave={handleSaveReportConfig}
+								initialRunMode={openInRunMode}
+							/>
+						)}
+					</div>
+
+					{/* ── Create folder modal ── */}
+					<CreateFolderModal
+						isOpen={isFolderModalOpen}
+						onClose={() => setFolderModalOpen(false)}
+						onCreate={handleCreateFolder}
+						folders={folders}
+					/>
+
+					{/* ── Edit folder modal ── */}
+					<CreateFolderModal
+						isOpen={!!editFolderItem}
+						onClose={() => setEditFolderItem(null)}
+						onCreate={handleEditFolder}
+						folders={folders}
+						mode="edit"
+						initialValues={editFolderItem ? {
+							name: editFolderItem.name,
+							isPublic: editFolderItem.isPublic ?? false,
+						} : undefined}
+					/>
+
+					{/* ── Create report modal ── */}
+					<CreateReportModal
+						isOpen={isReportModalOpen}
+						onClose={() => setReportModalOpen(false)}
+						onCreate={handleCreateReport}
+						folders={folders}
+					/>
+
+					<MoveToFolderModal
+						isOpen={!!moveReportItem}
+						onClose={() => setMoveReportItem(null)}
+						onMove={handleMoveReport}
+						reportName={moveReportItem?.name ?? ''}
+					/>
+
+					<ConfirmDeleteModal
+						isOpen={!!deleteItem}
+						onClose={() => setDeleteItem(null)}
+						onConfirm={handleDelete}
+						itemType={deleteItem?.isFolder ? 'folder' : 'report'}
+					/>
 				</div>
 			)}
 		</>
-		
 	);
 }

@@ -21,8 +21,14 @@
   },
   "dependencies": {
     "@hello-pangea/dnd": "^18.0.1",
+    "@highcharts/react": "^5.0.1",
+    "@uiw/react-textarea-code-editor": "^3.1.1",
     "axios": "^1.14.0",
+    "highcharts-react-official": "^3.2.3",
+    "html2canvas": "^1.4.1",
     "i": "^0.3.7",
+    "jspdf": "^4.2.1",
+    "jspdf-autotable": "^5.0.8",
     "npm": "^11.12.1",
     "react": "19.x",
     "react-dom": "19.x",
@@ -31,6 +37,7 @@
     "react-toastify": "^11.0.5",
     "recharts": "^3.8.1",
     "tailwindcss": "^4.2.2",
-    "uuid": "^13.0.0"
+    "uuid": "^13.0.0",
+    "xlsx": "^0.18.5"
   }
 }

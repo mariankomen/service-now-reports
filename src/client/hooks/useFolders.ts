@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import folderService from '../services/ServiceNow/folder-service';
 import type { Folder } from '../interfaces';
 import type { CreateFolderDto } from '../services/dtos';
+import type { UpdateFolderDto } from '../services/ServiceNow/folder-service';
 
 export type FolderType =
   | 'rootfolders'
@@ -24,7 +25,6 @@ export function useFolders(params: UseFoldersParams) {
   const fetchFolders = useCallback(async () => {
     setLoading(true);
     setError(null);
-
     try {
       const data = await folderService.getFolders({ type, folderId });
       setFolders(data);
@@ -37,9 +37,17 @@ export function useFolders(params: UseFoldersParams) {
 
   const createFolder = async (dto: CreateFolderDto) => {
     await folderService.create(dto);
-    await fetchFolders(); // refresh after create
+    await fetchFolders();
   };
 
+  const updateFolder = async (dto: UpdateFolderDto) => {
+    await folderService.updateFolder(dto);
+    await fetchFolders();
+  };
+  const deleteFolder = async (folderId: string) => {
+    await folderService.deleteFolder(folderId);
+    await fetchFolders();
+  };
   useEffect(() => {
     fetchFolders();
   }, [fetchFolders]);
@@ -49,6 +57,8 @@ export function useFolders(params: UseFoldersParams) {
     loading,
     error,
     createFolder,
-    refreshFolders: fetchFolders
+    updateFolder,
+    refreshFolders: fetchFolders,
+    deleteFolder
   };
 }

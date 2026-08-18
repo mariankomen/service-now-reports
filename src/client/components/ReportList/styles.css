@@ -1,0 +1,126 @@
+.main {
+  font-family: "Source Sans Pro", "Source Sans 3", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+/* ─── Table ─────────────────────────────────────────────────────────────────── */
+
+.report-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+  border-radius: 4px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.report-table thead th {
+  text-align: left;
+  padding: 8px 10px;
+  font-size: 12px;
+  color: #5E6C84;
+  border-bottom: 1px solid #dfe1e6;
+}
+
+
+.report-table tbody td {
+  padding: 6px 10px;
+  font-size: 13px;
+  border-bottom: 1px solid #dfe1e6;
+}
+
+.report-table tr:hover td {
+  background-color: #F4F5F7 !important;
+}
+
+.report-table .actions-col {
+  text-align: center;
+  width: 52px;
+}
+
+/* ─── Dots button ────────────────────────────────────────────────────────────── */
+
+.dots-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: #42526E;
+  padding: 4px 10px;
+  line-height: 1;
+  letter-spacing: 2px;
+}
+
+.dots-btn:hover {
+  background-color: #F4F5F7;
+  border-radius: 4px;
+}
+
+/* ─── Context menu ───────────────────────────────────────────────────────────── */
+
+.context-menu {
+  position: absolute;
+  background-color: #fff;
+  border: 1px solid #DFE1E6;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  z-index: 1000;
+  min-width: 210px;
+  overflow: hidden;
+  padding: 4px 0;
+  font-family: "Source Sans Pro", "Source Sans 3", sans-serif;
+}
+
+.context-menu-item {
+  padding: 8px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  white-space: nowrap;
+  background-color: transparent;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.context-menu-item:hover {
+  background-color: #F4F5F7;
+}
+
+.context-menu-item.danger {
+  color: #AE2E24;
+}
+
+.context-menu-divider {
+  height: 1px;
+  background-color: #F4F5F7;
+  margin: 4px 0;
+}
+
+/* ─── Role pill ──────────────────────────────────────────────────────────────── */
+
+.role-pill {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+.role-pill.owner   { background-color: #EAE6FF; color: #403294; }
+.role-pill.manager { background-color: #DEEBFF; color: #0052CC; }
+.role-pill.editor  { background-color: #E3FCEF; color: #006644; }
+.role-pill.viewer  { background-color: #F4F5F7; color: #42526E; }
+
+/* ─── Visibility pill ────────────────────────────────────────────────────────── */
+
+.visibility-pill {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.visibility-pill.public  { background-color: #E3FCEF; color: #006644; }
+.visibility-pill.private { background-color: #F4F5F7; color: '#42526E'; }

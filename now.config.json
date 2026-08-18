@@ -1,6 +1,6 @@
 {
   "scope": "x_1955226_connecto",
   "scopeId": "5ded0321c373f6105bed770d050131c0",
-  "name": "connector",
+  "name": "Peeklogic ServiceNow Reports",
   "tsconfigPath": "./src/server/tsconfig.json"
 }

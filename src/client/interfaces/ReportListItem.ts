@@ -4,5 +4,11 @@ export interface ReportListItem{
     description: string,
     folderName: string,
     createdDate: string,
-    isFolder: boolean
+    isFolder: boolean,
+    salesforceObject?: string;
+    serviceNowObject?: string;
+    owner?: string;
+    userRole?: string;
+    isFavorite?: boolean;
+    isPublic?: boolean;
 }

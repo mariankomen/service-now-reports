@@ -30,7 +30,7 @@
         response.setBody({ success: false, message: err.message });
     }
 })(request, response);]]></operation_script>
-        <operation_uri>/api/x_1955226_connecto/connector_api/folder</operation_uri>
+        <operation_uri>/api/x_1955226_connecto/x_1955226_connecto_connector_api/folder</operation_uri>
         <produces>application/json,application/xml,text/xml</produces>
         <produces_customized>false</produces_customized>
         <relative_path>/folder</relative_path>

@@ -2,12 +2,16 @@ import { useState, useEffect, useCallback } from 'react';
 import ReportService from '../services/ServiceNow/report-service';
 import type { Report } from '../interfaces';
 import type { CreateReportDto } from '../services/dtos';
+import { getRecent } from '../utils/recent';
 
 export type ReportType =
   | 'rootreports'
   | 'createdbymereports'
   | 'sharedwithmereports'
-  | 'publicreports';
+  | 'privatereports'
+  | 'publicreports'
+  | 'recentreports'
+  | 'favorites';
 
 interface UseReportsParams {
   type?: ReportType;
@@ -26,6 +30,22 @@ export function useReports(params: UseReportsParams) {
     setError(null);
 
     try {
+      // ─── Recent: load from localStorage ───────────────────────────────
+      if (type === 'recentreports') {
+        const recent = getRecent();
+        const mapped: Report[] = recent.map(r => ({
+          id: r.id,
+          name: r.name,
+          folderId: '',
+          salesforceObject: r.salesforceObject,
+          serviceNowObject: r.serviceNowObject,
+          createdDate: r.openedAt,
+        }));
+        setReports(mapped);
+        return;
+      }
+
+      // ─── All other types: fetch from API ──────────────────────────────
       const data = await ReportService.getReports({ type, folderId });
       setReports(data);
     } catch (err: any) {
@@ -35,11 +55,15 @@ export function useReports(params: UseReportsParams) {
     }
   }, [type, folderId]);
 
-  const createReport = async (dto: CreateReportDto) => {
-    await ReportService.create(dto);
-    await fetchReports(); // refresh after create
+  const createReport = async (dto: CreateReportDto): Promise<{ sys_id: string }> => {
+    const result = await ReportService.create(dto);
+    await fetchReports();
+    return result;
   };
-
+  const deleteReport = async (reportId: string) => {
+    await ReportService.deleteReport(reportId);
+    await fetchReports();
+  };
   useEffect(() => {
     fetchReports();
   }, [fetchReports]);
@@ -49,6 +73,7 @@ export function useReports(params: UseReportsParams) {
     loading,
     error,
     createReport,
-    refreshReports: fetchReports
+    refreshReports: fetchReports,
+    deleteReport
   };
 }

@@ -7,4 +7,7 @@ export interface Folder {
   parent_folder_id?: string;
   description?: string;
   createdDate: string;
+  owner?: string;
+  userRole?: string;
+  isPublic?: boolean;
 }
