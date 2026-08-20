@@ -94,6 +94,7 @@ const ReportBuilder: React.FC<ReportBuilderProps> = ({ reportId, onBack, onSave,
   const [loading, setLoading]                   = useState(false);
   const [loadingStatus, setLoadingStatus]       = useState('');
   const [availableFields, setAvailableFields]   = useState<AvailableField[]>([]);
+  const [lookupFields, setLookupFields]         = useState<AvailableField[]>([]);
   const [isRightPanelOpen, setIsRightPanelOpen] = useState(false);
   const [showUnsavedModal, setShowUnsavedModal] = useState(false);
   const [isEditingName, setIsEditingName]       = useState(false);
@@ -144,13 +145,18 @@ const ReportBuilder: React.FC<ReportBuilderProps> = ({ reportId, onBack, onSave,
         setFilters(loaded);
         savedFiltersRef.current = deepClone(loaded);
 
-        getAvailableFields(loaded.sfObjectName, loaded.snObjectName);
+        const usedFieldIds = [
+          ...loaded.selectedFields,
+          ...loaded.groupBy,
+          ...(loaded.chartGroupBy ? [loaded.chartGroupBy] : []),
+        ];
+        getAvailableFields(loaded.sfObjectName, loaded.snObjectName, usedFieldIds);
       } catch (e) {
         console.error(e);
       }
     };
 
-    const getAvailableFields = async (sfObject?: string, snObject?: string) => {
+    const getAvailableFields = async (sfObject?: string, snObject?: string, usedFieldIds: string[] = []) => {
       if (!sfObject || !snObject) return;
 
       const availableSFFields = await sobjectService.getSObjectFields(sfObject);
@@ -170,6 +176,42 @@ const ReportBuilder: React.FC<ReportBuilderProps> = ({ reportId, onBack, onSave,
       })).sort((a, b) => a.label.localeCompare(b.label));
 
       setAvailableFields([...availableFieldsMapped, ...availableSNFieldsMapped]);
+
+      resolveLookupLabels(usedFieldIds, availableFieldsMapped);
+    };
+
+    // ─── Resolve "[object label]: [field label]" for saved lookup fields ────
+    // Saved reports may reference child fields (SF.<relationship>.<apiname>)
+    // whose labels are only known after describing the referenced object
+    const resolveLookupLabels = async (fieldIds: string[], sfFields: AvailableField[]) => {
+      const relationships = new Set<string>();
+      fieldIds.forEach(id => {
+        const match = id.match(/^SF\.([^.]+)\./);
+        if (match) relationships.add(match[1]);
+      });
+      if (!relationships.size) return;
+
+      const entries: AvailableField[] = [];
+      await Promise.all([...relationships].map(async rel => {
+        const parent = sfFields.find(f => f.relationshipName === rel);
+        if (!parent?.referenceTo?.length) return;
+        await Promise.all(parent.referenceTo.map(async obj => {
+          try {
+            const [childFields, objLabel] = await Promise.all([
+              sobjectService.getSObjectFields(obj),
+              sobjectService.getObjectLabel(obj),
+            ]);
+            childFields.forEach(f => entries.push({
+              id: `SF.${rel}.${f.apiname}`,
+              label: `${objLabel}: ${f.label}`,
+              type: f.type,
+            }));
+          } catch {
+            // label falls back to the raw field id
+          }
+        }));
+      }));
+      registerLookupFields(entries);
     };
 
     getReport();
@@ -285,6 +327,18 @@ const ReportBuilder: React.FC<ReportBuilderProps> = ({ reportId, onBack, onSave,
     }
   };
 
+  // ─── Merge lookup child field labels loaded from the sidebar ──────────────
+  const registerLookupFields = (entries: AvailableField[]) => {
+    setLookupFields(prev => {
+      const known = new Set(prev.map(f => f.id));
+      const fresh = entries.filter(f => !known.has(f.id));
+      return fresh.length ? [...prev, ...fresh] : prev;
+    });
+  };
+
+  // Full field list for label resolution (columns, grid headers, exports, chart)
+  const allFields = useMemo(() => [...availableFields, ...lookupFields], [availableFields, lookupFields]);
+
   const toggleField = (fieldId: string) => {
     setFilters(prev => ({
       ...prev,
@@ -332,7 +386,7 @@ const ReportBuilder: React.FC<ReportBuilderProps> = ({ reportId, onBack, onSave,
 
   const metricLabel: Record<string, string> = { count: 'Count', sum: 'Sum', avg: 'Average', max: 'Max', min: 'Min' };
   const seriesName  = metricLabel[(filters.chartMetric as string) ?? 'count'] ?? 'Count';
-  const valueLabel  = availableFields.find(f => f.id === filters.chartValueField)?.label ?? '';
+  const valueLabel  = allFields.find(f => f.id === filters.chartValueField)?.label ?? '';
   const yAxisLabel  = filters.chartMetric === 'count' ? 'Count' : `${seriesName}${valueLabel ? ` of ${valueLabel}` : ''}`;
 
   // ─── Render ──────────────────────────────────────────────────────────────────
@@ -397,9 +451,9 @@ const ReportBuilder: React.FC<ReportBuilderProps> = ({ reportId, onBack, onSave,
           <div style={{ width: '1px', height: '24px', backgroundColor: '#DFE1E6', margin: '0 5px' }} />
           <ExportButton
             disabled={rawData.length === 0}
-            onExportCSV={() => exportToCSV(rawData, filters.selectedFields, availableFields, filters.name)}
-            onExportXLSX={() => exportToXLSX(rawData, filters.selectedFields, availableFields, filters.name)}
-            onExportPDF={() => exportToPDF(rawData, filters.selectedFields, availableFields, filters.name)}
+            onExportCSV={() => exportToCSV(rawData, filters.selectedFields, allFields, filters.name)}
+            onExportXLSX={() => exportToXLSX(rawData, filters.selectedFields, allFields, filters.name)}
+            onExportPDF={() => exportToPDF(rawData, filters.selectedFields, allFields, filters.name)}
           />
           <button onClick={() => handleRun(filters)} disabled={loading} className="secondaryBtnStyle">
             {loading ? 'Running...' : '▶ Run Preview'}
@@ -433,12 +487,13 @@ const ReportBuilder: React.FC<ReportBuilderProps> = ({ reportId, onBack, onSave,
               availableFields={availableFields}
               selectedFields={filters.selectedFields || []}
               onToggleField={toggleField}
+              onLookupFieldsLoaded={registerLookupFields}
             />
             <ConfigPanel
               filters={filters}
               setFilters={setFilters}
               onRun={applyConfigAndRun}
-              availableFields={availableFields}
+              availableFields={allFields}
               rawData={rawData}
               reportMeta={{
                 createdDate: filters.createdDate,
@@ -503,7 +558,7 @@ const ReportBuilder: React.FC<ReportBuilderProps> = ({ reportId, onBack, onSave,
                     rows={rawData}
                     selectedFields={filters.selectedFields}
                     groupBy={filters.groupBy}
-                    fields={availableFields}
+                    fields={allFields}
                     onGroupBy={field => setFilters(prev => ({ ...prev, groupBy: [...prev.groupBy, field] }))}
                     onRemoveColumn={field => setFilters(prev => ({
                       ...prev,
@@ -531,7 +586,7 @@ const ReportBuilder: React.FC<ReportBuilderProps> = ({ reportId, onBack, onSave,
             <ChartProperties
               filters={filters}
               setFilters={setFilters}
-              availableFields={availableFields}
+              availableFields={allFields}
             />
           </div>
         )}

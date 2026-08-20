@@ -31,9 +31,10 @@ type FieldsSidebarProps = {
   availableFields: AvailableField[];
   selectedFields: string[];
   onToggleField: (fieldId: string) => void;
+  onLookupFieldsLoaded?: (fields: AvailableField[]) => void;
 };
 
-const FieldsSidebar: React.FC<FieldsSidebarProps> = ({ availableFields, selectedFields, onToggleField }) => {
+const FieldsSidebar: React.FC<FieldsSidebarProps> = ({ availableFields, selectedFields, onToggleField, onLookupFieldsLoaded }) => {
   const [searchTerm, setSearchTerm]             = useState('');
   const [isExpanded, setIsExpanded]             = useState(true);
   const [expandedSections, setExpandedSections] = useState({ 'Salesforce Fields': true, 'ServiceNow Fields': true });
@@ -58,6 +59,23 @@ const FieldsSidebar: React.FC<FieldsSidebarProps> = ({ availableFields, selected
         if (obj === objects[0]) setExpandedRefObjects(prev => new Set(prev).add(`${field.id}::${obj}`));
       }
       setRefFields(prev => ({ ...prev, [field.id]: { status: 'loaded', byObject } }));
+
+      // ─── Report child field labels up as "[object label]: [field label]" ──
+      if (onLookupFieldsLoaded) {
+        const relationshipName = field.relationshipName!;
+        const entries: AvailableField[] = [];
+        for (const { obj, fields } of results) {
+          const objLabel = await sobjectService.getObjectLabel(obj);
+          for (const childField of fields) {
+            entries.push({
+              id: `SF.${relationshipName}.${childField.apiname}`,
+              label: `${objLabel}: ${childField.label}`,
+              type: childField.type,
+            });
+          }
+        }
+        onLookupFieldsLoaded(entries);
+      }
     } catch (e: any) {
       setRefFields(prev => ({ ...prev, [field.id]: { status: 'error', message: e.message ?? 'Failed to load' } }));
       errorToast(e?.message || 'Failed to load reference fields.');

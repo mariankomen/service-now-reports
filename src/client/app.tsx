@@ -218,7 +218,7 @@ export default function App() {
 	return (
 		<>
 			<div><Toaster position="top-right" /></div>
-			{!authorized || initialTab == 'connection' ? (
+			{!authorized || ['connection', 'support', 'privacy'].includes(initialTab) ? (
 				<AuthScreen onAuthorized={() => setAuthorized(true)} />
 			) : (
 				<div style={{ width: '100%', height: '100%', display: 'flex', fontFamily: 'sans-serif' }}>

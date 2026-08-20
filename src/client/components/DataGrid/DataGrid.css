@@ -176,28 +176,6 @@
   background-color: #F0F4FF;
 }
 
-.dg-th-filter {
-  padding: 4px 8px;
-  background-color: #FAFBFC;
-  border-bottom: 2px solid #DFE1E6;
-}
-
-.dg-th-filter.pinned {
-  background-color: #F0F4FF;
-}
-
-.dg-filter-input {
-  width: 100%;
-  padding: 3px 6px;
-  font-size: 11px;
-  border: 1px solid #DFE1E6;
-  border-radius: 3px;
-  outline: none;
-  box-sizing: border-box;
-  color: #172B4D;
-  font-family: inherit;
-}
-
 /* ─── Rows ───────────────────────────────────────────────────────────────────── */
 
 .dg-td {

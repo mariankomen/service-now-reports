@@ -125,12 +125,21 @@ SalesforceAuthService.prototype = {
                 baseUrl:      gr.getValue('base_url'),
                 instanceUrl:  gr.getValue('instance_url'),
                 loginUrl:     gr.getValue('login_url'),
-                accessToken:  gr.getDecryptedValue('access_token'),
-                refreshToken: gr.getDecryptedValue('refresh_token'),
-                clientId:     gr.getDecryptedValue('client_id'),
-                clientSecret: gr.getDecryptedValue('client_secret'),
+                accessToken:  this._readSecret(gr, 'access_token'),
+                refreshToken: this._readSecret(gr, 'refresh_token'),
+                clientId:     this._readSecret(gr, 'client_id'),
+                clientSecret: this._readSecret(gr, 'client_secret'),
             }
         };
+    },
+
+    // ─── Read a credential field ──────────────────────────────────────────────
+    // Password2 fields decrypt via the element; legacy plain-string columns
+    // don't, so fall back to the raw value when decryption yields nothing
+    _readSecret: function(gr, field) {
+        var decrypted = '';
+        try { decrypted = gr[field].getDecryptedValue(); } catch (e) {}
+        return decrypted || gr.getValue(field) || '';
     },
 
     // ─── Standard error response ──────────────────────────────────────────────

@@ -139,7 +139,6 @@ const DataGrid: React.FC<DataGridProps> = ({
   const columns = selectedFields?.length ? selectedFields : ['SF.Id', 'SN.sys_id'];
 
   const [sort, setSort]                   = useState<SortState>({ field: '', direction: null });
-  const [columnFilters, setColumnFilters] = useState<Record<string, string>>({});
   const [colStates, setColStates]         = useState<Record<string, ColumnState>>(() =>
     Object.fromEntries(columns.map(c => [c, { width: DEFAULT_COL_WIDTH, pin: null }]))
   );
@@ -156,13 +155,9 @@ const DataGrid: React.FC<DataGridProps> = ({
   const submenuTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // ─── Compute displayRows synchronously on every render ────────────────────
-  // This ensures sort/filter is always in sync with state — no async lag
+  // This ensures sort is always in sync with state — no async lag
   const displayRows = (() => {
-    let result = rows.filter(row =>
-      Object.entries(columnFilters).every(([field, value]) =>
-        !value || String(row[field] ?? '').toLowerCase().includes(value.toLowerCase())
-      )
-    );
+    let result = rows;
 
     if (sort.field && sort.direction) {
       result = [...result].sort((a, b) => {
@@ -539,31 +534,6 @@ const DataGrid: React.FC<DataGridProps> = ({
               })}
             </tr>
 
-            <tr>
-              {activeColumns.map(field => {
-                const pin    = colStates[field]?.pin;
-                const offset = getPinnedOffset(field, pin, activeColumns);
-                return (
-                  <th
-                    key={field}
-                    className={['dg-th-filter', pin ? 'pinned' : ''].filter(Boolean).join(' ')}
-                    style={{
-                      position: 'sticky', top: 37,
-                      left: pin === 'left' ? offset : undefined,
-                      right: pin === 'right' ? offset : undefined,
-                      zIndex: pin ? 4 : 3,
-                    }}
-                  >
-                    <input
-                      className="dg-filter-input"
-                      value={columnFilters[field] ?? ''}
-                      onChange={e => setColumnFilters(prev => ({ ...prev, [field]: e.target.value }))}
-                      placeholder="Filter..."
-                    />
-                  </th>
-                );
-              })}
-            </tr>
           </thead>
 
           <tbody>

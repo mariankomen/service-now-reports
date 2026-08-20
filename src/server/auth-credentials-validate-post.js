@@ -26,13 +26,19 @@
             req.setEndpoint(loginUrl + '/services/oauth2/token');
             req.setHttpMethod('POST');
             req.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-            req.setRequestBody(
+            var tokenBody =
                 'grant_type=authorization_code' +
                 '&code='          + encodeURIComponent(body.code) +
                 '&client_id='     + encodeURIComponent(body.clientId) +
                 '&client_secret=' + encodeURIComponent(body.clientSecret) +
-                '&redirect_uri='  + encodeURIComponent(body.redirectUri)
-            );
+                '&redirect_uri='  + encodeURIComponent(body.redirectUri);
+
+            // PKCE — required by Salesforce when the authorize request carried a code_challenge
+            if (body.codeVerifier) {
+                tokenBody += '&code_verifier=' + encodeURIComponent(body.codeVerifier);
+            }
+
+            req.setRequestBody(tokenBody);
 
             var res = req.execute();
             var resStatus = res.getStatusCode();

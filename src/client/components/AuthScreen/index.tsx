@@ -4,6 +4,8 @@ import { AiOutlineCheckCircle, AiOutlineDisconnect, AiOutlineLink } from 'react-
 import { warnToast, successToast, errorToast } from '../../utils/toast';
 import LoadingSpinner from '../LoadingSpinner';
 import SalesforceAuthService from '../../services/Salesforce';
+import SupportTab from '../SupportTab';
+import PrivacyPolicyTab from '../PrivacyPolicyTab';
 
 interface AuthScreenProps {
   onAuthorized: () => void;
@@ -16,9 +18,17 @@ const LOGIN_URLS = [
   { label: 'Sandbox',    value: 'https://test.salesforce.com'  },
 ];
 
+const TABS = [
+  { id: 'connection', label: 'Connection'     },
+  { id: 'support',    label: 'Support'        },
+  { id: 'privacy',    label: 'Privacy Policy' },
+];
+
 const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthorized }) => {
+  const urlTab = new URLSearchParams(window.location.search).get('tab') || '';
+
   const [isLoading, setIsLoading]             = useState(false);
-  const [activeTab, setActiveTab]             = useState('connection');
+  const [activeTab, setActiveTab]             = useState(TABS.some(t => t.id === urlTab) ? urlTab : 'connection');
   const [clientId, setClientId]               = useState('');
   const [clientSecret, setClientSecret]       = useState('');
   const [loginUrl, setLoginUrl]               = useState('https://login.salesforce.com');
@@ -74,7 +84,7 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthorized }) => {
       return;
     }
 
-    const { clientId, clientSecret, loginUrl } = JSON.parse(saved);
+    const { clientId, clientSecret, loginUrl, codeVerifier } = JSON.parse(saved);
     sessionStorage.removeItem('sf_oauth_pending');
 
     try {
@@ -83,6 +93,7 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthorized }) => {
         clientSecret,
         loginUrl,
         redirectUri: REDIRECT_URI,
+        codeVerifier,
       });
 
       window.history.replaceState({}, document.title, window.location.pathname);
@@ -98,17 +109,20 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthorized }) => {
   };
 
   // ─── Connect ──────────────────────────────────────────────────────────────
-  const handleConnect = () => {
+  const handleConnect = async () => {
     if (!clientId)     return warnToast('Please enter Client ID');
     if (!clientSecret) return warnToast('Please enter Client Secret');
 
-    sessionStorage.setItem('sf_oauth_pending', JSON.stringify({ clientId, clientSecret, loginUrl }));
+    const { codeVerifier, codeChallenge } = await SalesforceAuthService.createPkcePair();
+
+    sessionStorage.setItem('sf_oauth_pending', JSON.stringify({ clientId, clientSecret, loginUrl, codeVerifier }));
 
     const authUrl = SalesforceAuthService.buildAuthUrl({
       clientId,
       clientSecret,
       loginUrl,
       redirectUri: REDIRECT_URI,
+      codeChallenge,
     });
 
     window.open(authUrl);
@@ -156,18 +170,18 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthorized }) => {
 
         {/* ── Tabs ── */}
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
-          {['Connection', 'Settings', 'Support'].map(tab => (
+          {TABS.map(tab => (
             <div
-              key={tab}
-              onClick={() => setActiveTab(tab.toLowerCase())}
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
               style={{
                 ...tabStyle,
-                color: activeTab === tab.toLowerCase() ? '#0052cc' : '#42526E',
-                borderBottom: activeTab === tab.toLowerCase() ? '2px solid #0052cc' : 'none',
-                background: activeTab === tab.toLowerCase() ? 'rgb(240 244 251)' : '#fff',
+                color: activeTab === tab.id ? '#0052cc' : '#42526E',
+                borderBottom: activeTab === tab.id ? '2px solid #0052cc' : 'none',
+                background: activeTab === tab.id ? 'rgb(240 244 251)' : '#fff',
               }}
             >
-              {tab}
+              {tab.label}
             </div>
           ))}
         </div>
@@ -277,8 +291,16 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthorized }) => {
             </div>
           )}
 
-          {activeTab === 'settings' && <div style={{ padding: 20 }}>Settings</div>}
-          {activeTab === 'support'  && <div style={{ padding: 20 }}>Support</div>}
+          {activeTab === 'support' && (
+            <div style={{ width: '100%', padding: '20px 0' }}>
+              <SupportTab />
+            </div>
+          )}
+          {activeTab === 'privacy' && (
+            <div style={{ width: '100%', padding: '20px 0' }}>
+              <PrivacyPolicyTab />
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -9,6 +9,86 @@ declare global {
                         table: 'sys_module'
                         id: '68c45ebcf1084d258a268d3367dc6e5b'
                     }
+                    connecto_connection_create_acl: {
+                        table: 'sys_security_acl'
+                        id: '93e6f341b0e84ffaa6def7826082c9ed'
+                    }
+                    connecto_connection_delete_acl: {
+                        table: 'sys_security_acl'
+                        id: 'f9d0f6eb423846cb8f5d9564756cf10a'
+                    }
+                    connecto_connection_read_acl: {
+                        table: 'sys_security_acl'
+                        id: 'b4e3809b78304be99c03cf44a6c951e7'
+                    }
+                    connecto_connection_write_acl: {
+                        table: 'sys_security_acl'
+                        id: '4aaba885dbed45519bba49822a1760ee'
+                    }
+                    connecto_folder_create_acl: {
+                        table: 'sys_security_acl'
+                        id: 'ec2ded9a7873420eafd084bec5ddd875'
+                    }
+                    connecto_folder_delete_acl: {
+                        table: 'sys_security_acl'
+                        id: '035c185d60ab46b09f65166175ea5b57'
+                    }
+                    connecto_folder_read_acl: {
+                        table: 'sys_security_acl'
+                        id: 'dddf406d336f4bd5a47d84a5d899662f'
+                    }
+                    connecto_folder_write_acl: {
+                        table: 'sys_security_acl'
+                        id: 'ac4231dd4ecb4be4bb26a032e9c3e42f'
+                    }
+                    connecto_report_create_acl: {
+                        table: 'sys_security_acl'
+                        id: '194a5f54c92d408aa83cf54535b8ed1a'
+                    }
+                    connecto_report_delete_acl: {
+                        table: 'sys_security_acl'
+                        id: 'b0dfc1e21b634f459d089993e488f2dc'
+                    }
+                    connecto_report_read_acl: {
+                        table: 'sys_security_acl'
+                        id: 'e30cf1d6bcb1457cb4e0776adb87ebfe'
+                    }
+                    connecto_report_write_acl: {
+                        table: 'sys_security_acl'
+                        id: 'd42030dbc91e430ead5e3caa488a8af2'
+                    }
+                    connecto_share_create_acl: {
+                        table: 'sys_security_acl'
+                        id: 'c3c0906477bb487da7d8e5381b745eba'
+                    }
+                    connecto_share_delete_acl: {
+                        table: 'sys_security_acl'
+                        id: '1d43163edf67414faf8684c036cb52e3'
+                    }
+                    connecto_share_read_acl: {
+                        table: 'sys_security_acl'
+                        id: '3daa174e42a44af4aeceb071b74a2437'
+                    }
+                    connecto_share_write_acl: {
+                        table: 'sys_security_acl'
+                        id: '0c9c88d09c50469487742f4dedb79f2e'
+                    }
+                    connecto_user_prefs_create_acl: {
+                        table: 'sys_security_acl'
+                        id: '8b626d74881d41048395b5a77c3e3d4b'
+                    }
+                    connecto_user_prefs_delete_acl: {
+                        table: 'sys_security_acl'
+                        id: 'fc26ba233f7f4dbbb4be66086ba6606a'
+                    }
+                    connecto_user_prefs_read_acl: {
+                        table: 'sys_security_acl'
+                        id: 'fe2280644ccc4dcb92f48915baf06442'
+                    }
+                    connecto_user_prefs_write_acl: {
+                        table: 'sys_security_acl'
+                        id: 'a4d36559bfa14a2eb6db07d1f8f91f2a'
+                    }
                     connector_api: {
                         table: 'sys_ws_definition'
                         id: 'd3a1a257142b4f08a7a79dc3ccd18d1a'
@@ -54,6 +134,22 @@ declare global {
                         table: 'sys_module'
                         id: '5844968aa3304b85952d457061751811'
                     }
+                    report_builder_endpoint_ui_page_execute_acl: {
+                        table: 'sys_security_acl'
+                        id: '4167acbdbb0742759d66e9717bde9acf'
+                    }
+                    report_builder_endpoint_ui_page_read_acl: {
+                        table: 'sys_security_acl'
+                        id: '37899dee7b114788a9ead94e5219728c'
+                    }
+                    report_builder_ui_page_execute_acl: {
+                        table: 'sys_security_acl'
+                        id: '96a4e1e38a414791bc8a28dbc9db815d'
+                    }
+                    report_builder_ui_page_read_acl: {
+                        table: 'sys_security_acl'
+                        id: '25d784a47a0c452f987c57c353ba4ab8'
+                    }
                     report_data_get_route: {
                         table: 'sys_ws_operation'
                         id: '89bf50291224484aa26700f58ce11a07'
@@ -85,6 +181,10 @@ declare global {
                     salesforce_describe_get_route: {
                         table: 'sys_ws_operation'
                         id: '8291087c22f44e7b8e08f6b6053934b2'
+                    }
+                    salesforce_integration_rest_endpoint_acl: {
+                        table: 'sys_security_acl'
+                        id: '103d050022af404b905c5708e26d4e42'
                     }
                     salesforce_record_service_script_include: {
                         table: 'sys_script_include'
@@ -273,6 +373,14 @@ declare global {
                         table: 'sys_app_module'
                         id: 'f731da5588d84c08ab066d1a02a722e8'
                     }
+                    x_1955226_connecto_privacy_module: {
+                        table: 'sys_app_module'
+                        id: '4f972859f0c44ae3a502f142b5d1cc34'
+                    }
+                    x_1955226_connecto_support_module: {
+                        table: 'sys_app_module'
+                        id: '56a000103c844a3b8ff80e4331bfc272'
+                    }
                     x_peekl_salesfor_0_app_menu: {
                         table: 'sys_app_application'
                         id: 'bbb2922bbba643ec8ea9e7e84b441a4b'
@@ -286,10 +394,91 @@ declare global {
                 }
                 composite: [
                     {
+                        table: 'sys_security_acl_role'
+                        id: '04e491d8f88f4e48b268d8069f421765'
+                        key: {
+                            sys_security_acl: '1d43163edf67414faf8684c036cb52e3'
+                            sys_user_role: {
+                                id: '7d8e9fa66a76491fa77bfec7e3dd0046'
+                                key: {
+                                    name: 'x_1955226_connecto.peeklogic_reports_user'
+                                }
+                            }
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: '05578b6e201e4bccbe69ef7eafbb738c'
+                        key: {
+                            name: 'x_1955226_connecto_share'
+                            element: 'role'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: '056d4092d03e41fa887af7a46ca1b708'
+                        key: {
+                            name: 'x_1955226_connecto_report'
+                            element: 'NULL'
+                            language: 'en'
+                        }
+                    },
+                    {
                         table: 'sys_ui_page'
                         id: '07590f4661bc4c61abdf5a19797b5c66'
                         key: {
                             endpoint: 'x_1955226_connecto_report_builder.do'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: '090dcfc945474373b1be049b404aef06'
+                        key: {
+                            name: 'x_1955226_connecto_folder'
+                            element: 'is_public'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_security_acl_role'
+                        id: '0cb508730a174effa112b17f93feffb6'
+                        key: {
+                            sys_security_acl: '37899dee7b114788a9ead94e5219728c'
+                            sys_user_role: {
+                                id: '7d8e9fa66a76491fa77bfec7e3dd0046'
+                                key: {
+                                    name: 'x_1955226_connecto.peeklogic_reports_user'
+                                }
+                            }
+                        }
+                    },
+                    {
+                        table: 'sys_security_acl_role'
+                        id: '11afe0bc7831487ca18b7efac0471c1b'
+                        key: {
+                            sys_security_acl: 'fc26ba233f7f4dbbb4be66086ba6606a'
+                            sys_user_role: {
+                                id: '7d8e9fa66a76491fa77bfec7e3dd0046'
+                                key: {
+                                    name: 'x_1955226_connecto.peeklogic_reports_user'
+                                }
+                            }
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: '156bfb3bf4df4e48a11cfd551252ef4a'
+                        key: {
+                            name: 'x_1955226_connecto_report'
+                            element: 'description'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: '156c33da13284f9ab1023227f935419c'
+                        key: {
+                            name: 'x_1955226_connecto_folder'
+                            element: 'owner'
                         }
                     },
                     {
@@ -300,10 +489,223 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_documentation'
+                        id: '1c2129db9df4452aa14f03e791e9c6a8'
+                        key: {
+                            name: 'x_1955226_connecto_report'
+                            element: 'is_public'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: '1df04cc8270346b0b96ea51c26955b5c'
+                        key: {
+                            name: 'x_1955226_connecto_folder'
+                            element: 'description'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: '1e2ed700af2246d18963d40fa8161dec'
+                        key: {
+                            name: 'x_1955226_connecto_report'
+                            element: 'columns'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: '211fb95754bb4e6ea6571d61f3e1f29e'
+                        key: {
+                            name: 'x_1955226_connecto_connection'
+                            element: 'user_id'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: '21c178c1a77e4aae8ddb0fc1fddf8312'
+                        key: {
+                            name: 'x_1955226_connecto_folder'
+                            element: 'owner'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: '24754e8ab6394d0ca701064af17ff223'
+                        key: {
+                            name: 'x_1955226_connecto_share'
+                            element: 'NULL'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: '24ba59da8a27437c9038ef3e924d0e37'
+                        key: {
+                            name: 'x_1955226_connecto_share'
+                            element: 'item_type'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: '27191deed6bc4b49b0f4e43f8d690164'
+                        key: {
+                            name: 'x_1955226_connecto_connection'
+                            element: 'client_secret'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: '284cfbc7d44443f4b135995ccba69ea6'
+                        key: {
+                            name: 'x_1955226_connecto_report'
+                            element: 'folderid'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: '2876f6edcfcb43d680dd46b0558d3b66'
+                        key: {
+                            name: 'x_1955226_connecto_report'
+                            element: 'chart_type'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_security_acl_role'
+                        id: '2883670cc0434727a0bafd73eebf1478'
+                        key: {
+                            sys_security_acl: 'c3c0906477bb487da7d8e5381b745eba'
+                            sys_user_role: {
+                                id: '7d8e9fa66a76491fa77bfec7e3dd0046'
+                                key: {
+                                    name: 'x_1955226_connecto.peeklogic_reports_user'
+                                }
+                            }
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: '290aea4b58bf41fa96abf55948db61b8'
+                        key: {
+                            name: 'x_1955226_connecto_user_prefs'
+                            element: 'user_id'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: '2bad29ac5dfb4129aa8591a907195ba9'
+                        key: {
+                            name: 'x_1955226_connecto_user_prefs'
+                            element: 'NULL'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: '2c1c754fcbe449269c4c6df55ef43833'
+                        key: {
+                            name: 'x_1955226_connecto_report'
+                            element: 'show_chart'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: '2e1a57e204ae4baebbae625657342690'
+                        key: {
+                            name: 'x_1955226_connecto_user_prefs'
+                            element: 'user_id'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: '2ea908fe70de4e59ba372e4592497072'
+                        key: {
+                            name: 'x_1955226_connecto_folder'
+                            element: 'parent_folder_id'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_db_object'
+                        id: '2fa2783e477b47ef8dd976be555525bf'
+                        key: {
+                            name: 'x_1955226_connecto_folder'
+                        }
+                    },
+                    {
                         table: 'sys_ux_lib_asset'
                         id: '31fa9b79fbb347759eb4c2e0ec2d53ea'
                         key: {
                             name: 'x_1955226_connecto/index.es'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: '3204cc716aa74ef997b85d47e84f7f1f'
+                        key: {
+                            name: 'x_1955226_connecto_report'
+                            element: 'owner'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: '32a242785ae743a78c72e3b3ed629888'
+                        key: {
+                            name: 'x_1955226_connecto_report'
+                            element: 'sf_object_name'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: '35445f24e6a542b59d5dabdafa767871'
+                        key: {
+                            name: 'x_1955226_connecto_report'
+                            element: 'is_public'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: '35988eb6755a446c8d9abc51698dea20'
+                        key: {
+                            name: 'x_1955226_connecto_report'
+                            element: 'show_chart'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: '378546c7add446249c971915796e4c23'
+                        key: {
+                            name: 'x_1955226_connecto_share'
+                            element: 'item_type'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: '38223bc069ab4a089246375d7ffacd51'
+                        key: {
+                            name: 'x_1955226_connecto_folder'
+                            element: 'name'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_security_acl_role'
+                        id: '38ab4f8441c442e49fb125ab29eb8a2a'
+                        key: {
+                            sys_security_acl: 'b4e3809b78304be99c03cf44a6c951e7'
+                            sys_user_role: {
+                                id: '7d8e9fa66a76491fa77bfec7e3dd0046'
+                                key: {
+                                    name: 'x_1955226_connecto.peeklogic_reports_user'
+                                }
+                            }
                         }
                     },
                     {
@@ -314,10 +716,371 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_documentation'
+                        id: '3cb9cd9d48e04ea291d88d6381e54ca4'
+                        key: {
+                            name: 'x_1955226_connecto_report'
+                            element: 'filter_logic'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'ua_table_licensing_config'
+                        id: '3d105b73f829468d967c6b153552a6b8'
+                        key: {
+                            name: 'x_1955226_connecto_folder'
+                        }
+                    },
+                    {
+                        table: 'sys_security_acl_role'
+                        id: '3e2d67e8ec9e4eed99df16b310ea0989'
+                        key: {
+                            sys_security_acl: 'ac4231dd4ecb4be4bb26a032e9c3e42f'
+                            sys_user_role: {
+                                id: '7d8e9fa66a76491fa77bfec7e3dd0046'
+                                key: {
+                                    name: 'x_1955226_connecto.peeklogic_reports_user'
+                                }
+                            }
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: '4479124d198f42a09cde48b305e97ea0'
+                        key: {
+                            name: 'x_1955226_connecto_connection'
+                            element: 'base_url'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: '4540c643f4284caeb64e59c4f32eae67'
+                        key: {
+                            name: 'x_1955226_connecto_report'
+                            element: 'group_by'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: '45b0f7f4bf414625a4a47d30959ea142'
+                        key: {
+                            name: 'x_1955226_connecto_report'
+                            element: 'shared_with'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: '46a0f87d426d4fa2baf3d8a80eb9dd2e'
+                        key: {
+                            name: 'x_1955226_connecto_connection'
+                            element: 'client_id'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: '46cd4df4dbc940a890238d2a3d1efec3'
+                        key: {
+                            name: 'x_1955226_connecto_report'
+                            element: 'filter_conditions'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_security_acl_role'
+                        id: '47c75048100d4b29b9361a5856f4e392'
+                        key: {
+                            sys_security_acl: 'd42030dbc91e430ead5e3caa488a8af2'
+                            sys_user_role: {
+                                id: '7d8e9fa66a76491fa77bfec7e3dd0046'
+                                key: {
+                                    name: 'x_1955226_connecto.peeklogic_reports_user'
+                                }
+                            }
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: '4a751056bdd84c889d22efb303c4f0ca'
+                        key: {
+                            name: 'x_1955226_connecto_connection'
+                            element: 'refresh_token'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_security_acl_role'
+                        id: '4b7c97241c0a4cf18bcd2d6ea35ceee7'
+                        key: {
+                            sys_security_acl: '4aaba885dbed45519bba49822a1760ee'
+                            sys_user_role: {
+                                id: '7d8e9fa66a76491fa77bfec7e3dd0046'
+                                key: {
+                                    name: 'x_1955226_connecto.peeklogic_reports_user'
+                                }
+                            }
+                        }
+                    },
+                    {
+                        table: 'sys_db_object'
+                        id: '4c6ee1cafa3647bdb218202cd8cf3ecb'
+                        key: {
+                            name: 'x_1955226_connecto_share'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: '4ee8301aeaf547d091028655acdb57e3'
+                        key: {
+                            name: 'x_1955226_connecto_report'
+                            element: 'name'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'ua_table_licensing_config'
+                        id: '527a17a7dbeb42d9818aba9757b0d7e0'
+                        key: {
+                            name: 'x_1955226_connecto_user_prefs'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: '568db8c4c0464d2ca327265c04a6886e'
+                        key: {
+                            name: 'x_1955226_connecto_folder'
+                            element: 'is_public'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: '599b44c99e45474c95ac984df747daa6'
+                        key: {
+                            name: 'x_1955226_connecto_report'
+                            element: 'filter_logic'
+                        }
+                    },
+                    {
+                        table: 'sys_security_acl_role'
+                        id: '59ad463a5bd9468cb71401bde609ec86'
+                        key: {
+                            sys_security_acl: '25d784a47a0c452f987c57c353ba4ab8'
+                            sys_user_role: {
+                                id: '7d8e9fa66a76491fa77bfec7e3dd0046'
+                                key: {
+                                    name: 'x_1955226_connecto.peeklogic_reports_user'
+                                }
+                            }
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: '5aef68e97ef1499784bd002b1cf12a54'
+                        key: {
+                            name: 'x_1955226_connecto_share'
+                            element: 'item_id'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: '5faf4de34955441d83c747ea6253a2b7'
+                        key: {
+                            name: 'x_1955226_connecto_folder'
+                            element: 'parent_folder_id'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: '61ab2553d1fd4f9e9d13360a717dbc79'
+                        key: {
+                            name: 'x_1955226_connecto_report'
+                            element: 'sn_object_name'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: '61cc5579721146a29a8c101f3a5412fd'
+                        key: {
+                            name: 'x_1955226_connecto_report'
+                            element: 'NULL'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: '62504d99bcbb469583b72a0b575930b4'
+                        key: {
+                            name: 'x_1955226_connecto_share'
+                            element: 'NULL'
+                        }
+                    },
+                    {
+                        table: 'sys_security_acl_role'
+                        id: '65e1d732a80948b58396bd7b46cad9f9'
+                        key: {
+                            sys_security_acl: 'fe2280644ccc4dcb92f48915baf06442'
+                            sys_user_role: {
+                                id: '7d8e9fa66a76491fa77bfec7e3dd0046'
+                                key: {
+                                    name: 'x_1955226_connecto.peeklogic_reports_user'
+                                }
+                            }
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: '684caf3bb0c040639a36518fad7a4b19'
+                        key: {
+                            name: 'x_1955226_connecto_connection'
+                            element: 'issued_at'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: '692714f59a4547f69a3649e18441d6a5'
+                        key: {
+                            name: 'x_1955226_connecto_user_prefs'
+                            element: 'favorites'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: '6a41cf2d238f46f2b12149d3e67d37be'
+                        key: {
+                            name: 'x_1955226_connecto_folder'
+                            element: 'NULL'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: '6cfa98c59a4340c699cfe12c54c41751'
+                        key: {
+                            name: 'x_1955226_connecto_report'
+                            element: 'description'
+                            language: 'en'
+                        }
+                    },
+                    {
                         table: 'sys_ux_lib_asset'
                         id: '70063954d9224b6bb28928e2a73fc0c1'
                         key: {
                             name: 'x_1955226_connecto/purify.es'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: '71c7039a7fdd4c09a562cc5bb2d713a2'
+                        key: {
+                            name: 'x_1955226_connecto_connection'
+                            element: 'NULL'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: '7471c1fe3d6147cbb247240015ae2878'
+                        key: {
+                            name: 'x_1955226_connecto_connection'
+                            element: 'access_token'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'ua_table_licensing_config'
+                        id: '75471f8a43d54e238fb4ced23f4af5e1'
+                        key: {
+                            name: 'x_1955226_connecto_share'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: '799d2d70f3a5492aacd0d52d8d4e3980'
+                        key: {
+                            name: 'x_1955226_connecto_report'
+                            element: 'sn_object_name'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: '79c027aa27d7410f8af737bb42796f1a'
+                        key: {
+                            name: 'x_1955226_connecto_share'
+                            element: 'item_id'
+                        }
+                    },
+                    {
+                        table: 'sys_security_acl_role'
+                        id: '7c0995a45ed649b1a809ca1ca8651dbf'
+                        key: {
+                            sys_security_acl: 'dddf406d336f4bd5a47d84a5d899662f'
+                            sys_user_role: {
+                                id: '7d8e9fa66a76491fa77bfec7e3dd0046'
+                                key: {
+                                    name: 'x_1955226_connecto.peeklogic_reports_user'
+                                }
+                            }
+                        }
+                    },
+                    {
+                        table: 'sys_user_role'
+                        id: '7d8e9fa66a76491fa77bfec7e3dd0046'
+                        key: {
+                            name: 'x_1955226_connecto.peeklogic_reports_user'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: '7f45ce8be9d34430a1872694762a230d'
+                        key: {
+                            name: 'x_1955226_connecto_folder'
+                            element: 'name'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: '808e12f0cc4e4e87a36cdf8da82ef51f'
+                        key: {
+                            name: 'x_1955226_connecto_folder'
+                            element: 'shared_with'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: '82bfcefceb8448178a0e853312598966'
+                        key: {
+                            name: 'x_1955226_connecto_report'
+                            element: 'chart_group_by'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: '848fa9c5688d4bcd84379f40a6b76486'
+                        key: {
+                            name: 'x_1955226_connecto_report'
+                            element: 'shared_with'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_security_acl_role'
+                        id: '86f878a90abd4a65a6045d3f9754768f'
+                        key: {
+                            sys_security_acl: 'a4d36559bfa14a2eb6db07d1f8f91f2a'
+                            sys_user_role: {
+                                id: '7d8e9fa66a76491fa77bfec7e3dd0046'
+                                key: {
+                                    name: 'x_1955226_connecto.peeklogic_reports_user'
+                                }
+                            }
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: '882c28d0a7fd4675b942795bc90a07ec'
+                        key: {
+                            name: 'x_1955226_connecto_report'
+                            element: 'show_only_with_sf_records'
                         }
                     },
                     {
@@ -328,10 +1091,223 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_documentation'
+                        id: '8b0bd353351e46029d36c4ef9bf8e483'
+                        key: {
+                            name: 'x_1955226_connecto_folder'
+                            element: 'NULL'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: '917e1689201c43c28c35c59fa68b8965'
+                        key: {
+                            name: 'x_1955226_connecto_connection'
+                            element: 'instance_url'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: '91bedf854e8c459591dc94dc9d1f6966'
+                        key: {
+                            name: 'x_1955226_connecto_connection'
+                            element: 'access_token'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: '92bfb6430b124a36b4c7aa38655f2283'
+                        key: {
+                            name: 'x_1955226_connecto_user_prefs'
+                            element: 'NULL'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: '94de7455edff46fb85ebffd1d69a88c5'
+                        key: {
+                            name: 'x_1955226_connecto_report'
+                            element: 'columns'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: '9695244aeff34bab9e66bb244b4f8078'
+                        key: {
+                            name: 'x_1955226_connecto_connection'
+                            element: 'refresh_token'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: '9ab3a542089447f0a063c2c30e66029c'
+                        key: {
+                            name: 'x_1955226_connecto_report'
+                            element: 'chart_group_by'
+                        }
+                    },
+                    {
                         table: 'sys_ui_page'
                         id: '9b5af5dce174498a90e867dfd6a564a8'
+                        deleted: true
                         key: {
                             endpoint: 'x_1955226_connecto_incident_manager.do'
+                        }
+                    },
+                    {
+                        table: 'sys_security_acl_role'
+                        id: '9dc3035d788c4656819d12165796d8da'
+                        key: {
+                            sys_security_acl: '8b626d74881d41048395b5a77c3e3d4b'
+                            sys_user_role: {
+                                id: '7d8e9fa66a76491fa77bfec7e3dd0046'
+                                key: {
+                                    name: 'x_1955226_connecto.peeklogic_reports_user'
+                                }
+                            }
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: '9eb75a4d00324a83b331cfc2ebe8343d'
+                        key: {
+                            name: 'x_1955226_connecto_report'
+                            element: 'folderid'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: 'a2c7858a5a6f4f30ba7c54e423921d2a'
+                        key: {
+                            name: 'x_1955226_connecto_connection'
+                            element: 'issued_at'
+                        }
+                    },
+                    {
+                        table: 'sys_db_object'
+                        id: 'acf863e7fc3641ab84ea77cdd3ddda73'
+                        key: {
+                            name: 'x_1955226_connecto_user_prefs'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: 'ad296be92ff8493fa1d053c7ac2f0a87'
+                        key: {
+                            name: 'x_1955226_connecto_connection'
+                            element: 'login_url'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: 'ae27e35a3ca947ec90545c5c2350e20a'
+                        key: {
+                            name: 'x_1955226_connecto_connection'
+                            element: 'instance_url'
+                        }
+                    },
+                    {
+                        table: 'sys_security_acl_role'
+                        id: 'b0ee0d49e85348b4b6cdbe7122eb4ae3'
+                        key: {
+                            sys_security_acl: '035c185d60ab46b09f65166175ea5b57'
+                            sys_user_role: {
+                                id: '7d8e9fa66a76491fa77bfec7e3dd0046'
+                                key: {
+                                    name: 'x_1955226_connecto.peeklogic_reports_user'
+                                }
+                            }
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: 'b2da7bbe22cc4be6a42849f2adee9677'
+                        key: {
+                            name: 'x_1955226_connecto_report'
+                            element: 'filter_conditions'
+                        }
+                    },
+                    {
+                        table: 'sys_security_acl_role'
+                        id: 'b3968500e2fe48dd843aeeb436deb4e7'
+                        key: {
+                            sys_security_acl: '3daa174e42a44af4aeceb071b74a2437'
+                            sys_user_role: {
+                                id: '7d8e9fa66a76491fa77bfec7e3dd0046'
+                                key: {
+                                    name: 'x_1955226_connecto.peeklogic_reports_user'
+                                }
+                            }
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: 'b82f03746808492484a107d8f0712cf1'
+                        key: {
+                            name: 'x_1955226_connecto_folder'
+                            element: 'description'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: 'bda668038e874f218ce013496788c3fe'
+                        key: {
+                            name: 'x_1955226_connecto_connection'
+                            element: 'client_id'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: 'bfbe88846eb7451ebf1d896733697dea'
+                        key: {
+                            name: 'x_1955226_connecto_connection'
+                            element: 'NULL'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: 'c0035052bbc4453986e12079f1c3b961'
+                        key: {
+                            name: 'x_1955226_connecto_connection'
+                            element: 'login_url'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: 'c0d2919c2f324ac1994ab38e5bc164a7'
+                        key: {
+                            name: 'x_1955226_connecto_report'
+                            element: 'filter_query'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: 'c0e3fdb09cdb43e7b75e8f792e10d953'
+                        key: {
+                            name: 'x_1955226_connecto_connection'
+                            element: 'user_id'
+                        }
+                    },
+                    {
+                        table: 'sys_security_acl_role'
+                        id: 'c189943bcb0f4d5991025a5bedd93b8f'
+                        key: {
+                            sys_security_acl: 'e30cf1d6bcb1457cb4e0776adb87ebfe'
+                            sys_user_role: {
+                                id: '7d8e9fa66a76491fa77bfec7e3dd0046'
+                                key: {
+                                    name: 'x_1955226_connecto.peeklogic_reports_user'
+                                }
+                            }
                         }
                     },
                     {
@@ -342,6 +1318,94 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_documentation'
+                        id: 'c3df78ff275e4b2fa1fb825e902724c6'
+                        key: {
+                            name: 'x_1955226_connecto_share'
+                            element: 'user_id'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_security_acl_role'
+                        id: 'c3eba0910ba64292b75e7217ba41edc9'
+                        key: {
+                            sys_security_acl: 'ec2ded9a7873420eafd084bec5ddd875'
+                            sys_user_role: {
+                                id: '7d8e9fa66a76491fa77bfec7e3dd0046'
+                                key: {
+                                    name: 'x_1955226_connecto.peeklogic_reports_user'
+                                }
+                            }
+                        }
+                    },
+                    {
+                        table: 'ua_table_licensing_config'
+                        id: 'c3ef971ac30141899cd47f04921e2b22'
+                        key: {
+                            name: 'x_1955226_connecto_connection'
+                        }
+                    },
+                    {
+                        table: 'sys_security_acl_role'
+                        id: 'c7542c9ef35a4de9a621a1e76212cc51'
+                        key: {
+                            sys_security_acl: '194a5f54c92d408aa83cf54535b8ed1a'
+                            sys_user_role: {
+                                id: '7d8e9fa66a76491fa77bfec7e3dd0046'
+                                key: {
+                                    name: 'x_1955226_connecto.peeklogic_reports_user'
+                                }
+                            }
+                        }
+                    },
+                    {
+                        table: 'sys_db_object'
+                        id: 'c7e8a31b100047d9bbe80545e217f5e7'
+                        key: {
+                            name: 'x_1955226_connecto_report'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: 'ce4f83589773441fa45b3522091b7bc0'
+                        key: {
+                            name: 'x_1955226_connecto_report'
+                            element: 'show_only_with_sf_records'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_security_acl_role'
+                        id: 'd031a294c60d4818b06888c6df183b3b'
+                        key: {
+                            sys_security_acl: '0c9c88d09c50469487742f4dedb79f2e'
+                            sys_user_role: {
+                                id: '7d8e9fa66a76491fa77bfec7e3dd0046'
+                                key: {
+                                    name: 'x_1955226_connecto.peeklogic_reports_user'
+                                }
+                            }
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: 'd077d3f81ea94e3a9a10f514e8efcddf'
+                        key: {
+                            name: 'x_1955226_connecto_connection'
+                            element: 'base_url'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: 'd0d90f87914c4c0d8b2490eaf5e117a6'
+                        key: {
+                            name: 'x_1955226_connecto_report'
+                            element: 'owner'
+                        }
+                    },
+                    {
                         table: 'sys_ux_lib_asset'
                         id: 'd26d4747897e455594b9c561c7975497'
                         key: {
@@ -349,10 +1413,188 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_documentation'
+                        id: 'd47f5c7bbef6422f9bb2395367502fe0'
+                        key: {
+                            name: 'x_1955226_connecto_folder'
+                            element: 'shared_with'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: 'd8da0167092143aea9e6c1491179993d'
+                        key: {
+                            name: 'x_1955226_connecto_report'
+                            element: 'group_by'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_security_acl_role'
+                        id: 'd9bb3c02f7fd42deb2dd06b66cc4fa60'
+                        key: {
+                            sys_security_acl: 'b0dfc1e21b634f459d089993e488f2dc'
+                            sys_user_role: {
+                                id: '7d8e9fa66a76491fa77bfec7e3dd0046'
+                                key: {
+                                    name: 'x_1955226_connecto.peeklogic_reports_user'
+                                }
+                            }
+                        }
+                    },
+                    {
+                        table: 'sys_db_object'
+                        id: 'df9b500c196949bfbd7636a652a483eb'
+                        key: {
+                            name: 'x_1955226_connecto_connection'
+                        }
+                    },
+                    {
+                        table: 'sys_security_acl_role'
+                        id: 'dfe838e20dca477e9b7c1602d912323c'
+                        key: {
+                            sys_security_acl: 'f9d0f6eb423846cb8f5d9564756cf10a'
+                            sys_user_role: {
+                                id: '7d8e9fa66a76491fa77bfec7e3dd0046'
+                                key: {
+                                    name: 'x_1955226_connecto.peeklogic_reports_user'
+                                }
+                            }
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: 'e00a83fa0fa0487f9957be1f64f92f1e'
+                        key: {
+                            name: 'x_1955226_connecto_connection'
+                            element: 'client_secret'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_security_acl_role'
+                        id: 'e3568077534d4fd1a84cb36261d2723c'
+                        key: {
+                            sys_security_acl: '96a4e1e38a414791bc8a28dbc9db815d'
+                            sys_user_role: {
+                                id: '7d8e9fa66a76491fa77bfec7e3dd0046'
+                                key: {
+                                    name: 'x_1955226_connecto.peeklogic_reports_user'
+                                }
+                            }
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: 'e4220ecd74c8404c8a2ff812379fa2ef'
+                        key: {
+                            name: 'x_1955226_connecto_share'
+                            element: 'user_id'
+                        }
+                    },
+                    {
+                        table: 'sys_security_acl_role'
+                        id: 'e42771aeb8124a2d89755c7dde967187'
+                        key: {
+                            sys_security_acl: '4167acbdbb0742759d66e9717bde9acf'
+                            sys_user_role: {
+                                id: '7d8e9fa66a76491fa77bfec7e3dd0046'
+                                key: {
+                                    name: 'x_1955226_connecto.peeklogic_reports_user'
+                                }
+                            }
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: 'e498308f8172485c8d59a9c00d443255'
+                        key: {
+                            name: 'x_1955226_connecto_report'
+                            element: 'sf_object_name'
+                            language: 'en'
+                        }
+                    },
+                    {
                         table: 'sys_ux_lib_asset'
                         id: 'ec82d4199bc5481e871374d5556bff1a'
                         key: {
                             name: 'x_1955226_connecto/html2canvas'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: 'ee0aad4c819d4de1954beaa227b78e52'
+                        key: {
+                            name: 'x_1955226_connecto_report'
+                            element: 'chart_type'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: 'f01015ddd5664ac8a4d9734716397203'
+                        key: {
+                            name: 'x_1955226_connecto_share'
+                            element: 'role'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'ua_table_licensing_config'
+                        id: 'f2e02863f7c4486e9aefb2b1279f3a12'
+                        key: {
+                            name: 'x_1955226_connecto_report'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: 'f4c6d9ffda28498b91054835ae4aa789'
+                        key: {
+                            name: 'x_1955226_connecto_user_prefs'
+                            element: 'favorites'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_security_acl_role'
+                        id: 'f7d1a1d0f8ee4f8e84fe10a82919a284'
+                        key: {
+                            sys_security_acl: '103d050022af404b905c5708e26d4e42'
+                            sys_user_role: {
+                                id: '7d8e9fa66a76491fa77bfec7e3dd0046'
+                                key: {
+                                    name: 'x_1955226_connecto.peeklogic_reports_user'
+                                }
+                            }
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: 'fbd32f8255a1459d987645a9039ffde3'
+                        key: {
+                            name: 'x_1955226_connecto_report'
+                            element: 'name'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: 'fc7c41ee73584b388a01843ca580d43c'
+                        key: {
+                            name: 'x_1955226_connecto_report'
+                            element: 'filter_query'
+                        }
+                    },
+                    {
+                        table: 'sys_security_acl_role'
+                        id: 'ff7d1de0f21043978e3119a31f456107'
+                        key: {
+                            sys_security_acl: '93e6f341b0e84ffaa6def7826082c9ed'
+                            sys_user_role: {
+                                id: '7d8e9fa66a76491fa77bfec7e3dd0046'
+                                key: {
+                                    name: 'x_1955226_connecto.peeklogic_reports_user'
+                                }
+                            }
                         }
                     },
                 ]
