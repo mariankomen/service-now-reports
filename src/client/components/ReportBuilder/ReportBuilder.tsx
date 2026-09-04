@@ -3,6 +3,7 @@ import FieldsSidebar from './FieldsSidebar';
 import ConfigPanel from './ConfigPanel';
 import ChartPreview from './ChartPreview';
 import DataGrid, { DataRow } from '../DataGrid/DataGrid';
+import type { ChartValueFormat } from '../Charts/chartFormat';
 import ChartProperties from './ChartProperties';
 import ReportService from '../../services/ServiceNow/report-service';
 import { sobjectService } from '../../services';
@@ -12,7 +13,14 @@ import { AiOutlineLeft, AiOutlineEdit } from 'react-icons/ai';
 import { ExportButton } from '../ExportButton';
 import { exportToCSV, exportToXLSX, exportToPDF } from '../../utils/exportService';
 import { successToast, errorToast } from '../../utils/toast';
-import type { FilterCondition } from '../../utils/filterBuilder';
+import {
+  type FilterCondition,
+  hasSalesforceConditions,
+  evaluateConditions,
+  buildDefaultLogic,
+  buildEncodedQuery,
+  normalizeFieldId,
+} from '../../utils/filterBuilder';
 
 export type ChartType = 'donut' | 'bar' | 'line' | 'table';
 
@@ -91,6 +99,7 @@ const ReportBuilder: React.FC<ReportBuilderProps> = ({ reportId, onBack, onSave,
   const [autoPreview, setAutoPreview]           = useState(false);
   const [reportIsRunning, setReportIsRunning]   = useState(initialRunMode ?? false);
   const [rawData, setRawData]                   = useState<DataRow[]>([]);
+  const [serverTotal, setServerTotal]           = useState<number | null>(null);
   const [loading, setLoading]                   = useState(false);
   const [loadingStatus, setLoadingStatus]       = useState('');
   const [availableFields, setAvailableFields]   = useState<AvailableField[]>([]);
@@ -123,6 +132,9 @@ const ReportBuilder: React.FC<ReportBuilderProps> = ({ reportId, onBack, onSave,
           setReportIsRunning(true);
         }
 
+        const savedConditions: FilterCondition[] = report.filterConditions ? JSON.parse(report.filterConditions) : [];
+        const savedLogic = report.filterLogic || buildDefaultLogic(savedConditions);
+
         const loaded: FilterConfig = {
           ...defaultFiltersBase,
           name:                         report.name,
@@ -133,8 +145,10 @@ const ReportBuilder: React.FC<ReportBuilderProps> = ({ reportId, onBack, onSave,
           showOnlyRecordsWithSalesforce: report.showOnlyRecordsWithSalesforce,
           folderId:                     report.folderId,
           chartGroupBy:                 report.chartGroupBy,
-          filterQuery:                  report.filterQuery ?? '',
-          filterConditions:             report.filterConditions ? JSON.parse(report.filterConditions) : [],
+          // Recompute the encoded query from the saved conditions — the stored
+          // filter_query may be stale (e.g. contain SF fields from older versions)
+          filterQuery:                  savedConditions.length ? buildEncodedQuery(savedConditions, savedLogic) : '',
+          filterConditions:             savedConditions,
           filterLogic:                  report.filterLogic ?? '',
           description:                  report.description ?? '',
           createdDate:                  report.createdDate ?? '',
@@ -144,6 +158,9 @@ const ReportBuilder: React.FC<ReportBuilderProps> = ({ reportId, onBack, onSave,
 
         setFilters(loaded);
         savedFiltersRef.current = deepClone(loaded);
+
+        // ─── Run with the loaded config — filters state is not updated yet ──
+        handleRun(loaded);
 
         const usedFieldIds = [
           ...loaded.selectedFields,
@@ -184,15 +201,15 @@ const ReportBuilder: React.FC<ReportBuilderProps> = ({ reportId, onBack, onSave,
     // Saved reports may reference child fields (SF.<relationship>.<apiname>)
     // whose labels are only known after describing the referenced object
     const resolveLookupLabels = async (fieldIds: string[], sfFields: AvailableField[]) => {
-      const relationships = new Set<string>();
+      const relationships: string[] = [];
       fieldIds.forEach(id => {
         const match = id.match(/^SF\.([^.]+)\./);
-        if (match) relationships.add(match[1]);
+        if (match && !relationships.includes(match[1])) relationships.push(match[1]);
       });
-      if (!relationships.size) return;
+      if (!relationships.length) return;
 
       const entries: AvailableField[] = [];
-      await Promise.all([...relationships].map(async rel => {
+      await Promise.all(relationships.map(async rel => {
         const parent = sfFields.find(f => f.relationshipName === rel);
         if (!parent?.referenceTo?.length) return;
         await Promise.all(parent.referenceTo.map(async obj => {
@@ -215,7 +232,6 @@ const ReportBuilder: React.FC<ReportBuilderProps> = ({ reportId, onBack, onSave,
     };
 
     getReport();
-    handleRun();
   }, [reportId]);
 
   // ─── Auto preview ────────────────────────────────────────────────────────────
@@ -249,15 +265,20 @@ const ReportBuilder: React.FC<ReportBuilderProps> = ({ reportId, onBack, onSave,
 
   // ─── Handlers ────────────────────────────────────────────────────────────────
 
-  const applyConfigAndRun = async () => {
-    await handleSave();
-    handleRun(filters);
+  // ─── Apply changes from the config panel, then save and run ───────────────
+  // The patch carries the just-applied values — reading `filters` here would
+  // use the previous render's state (React hasn't committed the update yet)
+  const applyConfigAndRun = async (patch?: Partial<FilterConfig>) => {
+    const next = patch ? { ...filters, ...patch } : filters;
+    await handleSave(next);
+    handleRun(next);
   };
 
-  const handleSave = async () => {
+  const handleSave = async (configOverride?: FilterConfig) => {
+    const config = configOverride ?? filters;
     try {
-      await onSave(filters, reportId);
-      savedFiltersRef.current = deepClone(filters);
+      await onSave(config, reportId);
+      savedFiltersRef.current = deepClone(config);
     } catch (e: any) {
       errorToast(e?.message || 'Failed to save report.');
     }
@@ -276,25 +297,46 @@ const ReportBuilder: React.FC<ReportBuilderProps> = ({ reportId, onBack, onSave,
     }
   };
 
+  const runIdRef = useRef(0);
+
   const handleRun = async (filtersOverride?: FilterConfig) => {
+    const runId = ++runIdRef.current;
     try {
       const activeFilters = filtersOverride ?? filters;
 
       if (!activeFilters.sfObjectName || !activeFilters.snObjectName) return;
-      if (!activeFilters.selectedFields.length) return;
+      if (!activeFilters.selectedFields?.length) return;
 
       setLoading(true);
       setRawData([]);
 
+      // ─── SF conditions are filtered client-side, so their fields (and the
+      // SN fields needed to re-check mixed logic) must be present in the data ──
+      const conditions      = activeFilters.filterConditions ?? [];
+      const clientFiltering = hasSalesforceConditions(conditions);
+      const extraFilterFields: string[] = [];
+      if (clientFiltering) {
+        conditions.forEach(c => {
+          if (!c.field) return;
+          const fieldId = normalizeFieldId(c.field);
+          if (!activeFilters.selectedFields.includes(fieldId) && !extraFilterFields.includes(fieldId)) {
+            extraFilterFields.push(fieldId);
+          }
+        });
+      }
+      const fetchFields = activeFilters.selectedFields.concat(extraFilterFields);
+
       let page = 1;
       let hasMore = true;
       let allItems: DataRow[] = [];
+      let totalFromServer: number | null = null;
 
       while (hasMore) {
+        if (runId !== runIdRef.current) return; // a newer run superseded this one
         const result = await ReportService.getReportData({
           sfObjectName:                  activeFilters.sfObjectName!,
           snObjectName:                  activeFilters.snObjectName!,
-          selectedFields:                activeFilters.selectedFields,
+          selectedFields:                fetchFields,
           filterQuery:                   activeFilters.filterQuery,
           showOnlyRecordsWithSalesforce: activeFilters.showOnlyRecordsWithSalesforce,
           page,
@@ -312,27 +354,40 @@ const ReportBuilder: React.FC<ReportBuilderProps> = ({ reportId, onBack, onSave,
         const total = result.pagination?.total ?? '?';
         setLoadingStatus(`Loading ${allItems.length} of ${total} records...`);
 
+        if (typeof result.pagination?.total === 'number') totalFromServer = result.pagination.total;
         hasMore = result.pagination?.hasMore ?? false;
         page++;
       }
 
+      // ─── Apply SF / mixed filter logic client-side ────────────────────────
+      if (clientFiltering) {
+        const logic = activeFilters.filterLogic || buildDefaultLogic(conditions);
+        allItems = allItems.filter(row => evaluateConditions(row, conditions, logic));
+      }
+
       // ─── All pages loaded — show everything at once ───────────────────────
+      if (runId !== runIdRef.current) return;
       setRawData(allItems);
+      setServerTotal(totalFromServer);
 
     } catch (e: any) {
       errorToast(e?.message || 'Failed to run report.');
     } finally {
-      setLoading(false);
-      setLoadingStatus('');
+      if (runId === runIdRef.current) {
+        setLoading(false);
+        setLoadingStatus('');
+      }
     }
   };
 
   // ─── Merge lookup child field labels loaded from the sidebar ──────────────
   const registerLookupFields = (entries: AvailableField[]) => {
     setLookupFields(prev => {
-      const known = new Set(prev.map(f => f.id));
-      const fresh = entries.filter(f => !known.has(f.id));
-      return fresh.length ? [...prev, ...fresh] : prev;
+      const known = prev.map(f => f.id);
+      const fresh = entries.filter((f, i) =>
+        !known.includes(f.id) && entries.findIndex(e => e.id === f.id) === i
+      );
+      return fresh.length ? prev.concat(fresh) : prev;
     });
   };
 
@@ -388,6 +443,15 @@ const ReportBuilder: React.FC<ReportBuilderProps> = ({ reportId, onBack, onSave,
   const seriesName  = metricLabel[(filters.chartMetric as string) ?? 'count'] ?? 'Count';
   const valueLabel  = allFields.find(f => f.id === filters.chartValueField)?.label ?? '';
   const yAxisLabel  = filters.chartMetric === 'count' ? 'Count' : `${seriesName}${valueLabel ? ` of ${valueLabel}` : ''}`;
+
+  // ─── Value format for the chart, derived from the Y-axis value field type ──
+  const chartValueFormat: ChartValueFormat = useMemo(() => {
+    if (((filters.chartMetric as string) ?? 'count') === 'count') return 'number';
+    const type = allFields.find(f => f.id === filters.chartValueField)?.type;
+    if (type === 'currency' || type === 'currency2') return 'currency';
+    if (type === 'percent') return 'percent';
+    return 'number';
+  }, [allFields, filters.chartValueField, filters.chartMetric]);
 
   // ─── Render ──────────────────────────────────────────────────────────────────
   return (
@@ -460,7 +524,7 @@ const ReportBuilder: React.FC<ReportBuilderProps> = ({ reportId, onBack, onSave,
           </button>
           {!readonly && (
             <>
-              <button onClick={handleSave} className="primaryButtonStyle">Save</button>
+              <button onClick={() => handleSave()} className="primaryButtonStyle">Save</button>
               <button
                 className="primaryButtonStyle"
                 onClick={() => {
@@ -495,6 +559,7 @@ const ReportBuilder: React.FC<ReportBuilderProps> = ({ reportId, onBack, onSave,
               onRun={applyConfigAndRun}
               availableFields={allFields}
               rawData={rawData}
+              totalRecords={serverTotal ?? undefined}
               reportMeta={{
                 createdDate: filters.createdDate,
                 owner: filters.owner,
@@ -528,6 +593,7 @@ const ReportBuilder: React.FC<ReportBuilderProps> = ({ reportId, onBack, onSave,
                   chartType={filters.chartType}
                   seriesName={seriesName}
                   yAxisLabel={yAxisLabel}
+                  valueFormat={chartValueFormat}
                 />
               </div>
             </div>
@@ -552,7 +618,7 @@ const ReportBuilder: React.FC<ReportBuilderProps> = ({ reportId, onBack, onSave,
                 </div>
               </div>
               <div className="table-card-wrapper">
-                <div style={{ overflowX: 'auto', minWidth: 0, width: '100%' }}>
+                <div style={{ minWidth: 0, width: '100%' }}>
                   <DataGrid
                     key={filters.groupBy.join(',')}
                     rows={rawData}

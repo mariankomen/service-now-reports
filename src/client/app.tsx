@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { CreateFolderModal } from './components/Modals';
 import { CreateReportModal } from './components/Modals';
 import { MoveToFolderModal } from './components/Modals';
@@ -32,6 +32,12 @@ export default function App() {
 	const [openInRunMode, setOpenInRunMode]   = useState(false);
 	const [moveReportItem, setMoveReportItem] = useState<ReportListItem | null>(null);
 	const [deleteItem, setDeleteItem] = useState<ReportListItem | null>(null);
+
+	// ─── List context to restore on Back from the report builder ──────────────
+	const lastListContextRef = useRef<{ id: string; name: string }>({ id: 'recentreports', name: 'Recent' });
+	const rememberListContext = () => {
+		lastListContextRef.current = { id: activeTabId, name: activeTabName };
+	};
 
 	// ─── Modals ───────────────────────────────────────────────────────────────
 	const [isFolderModalOpen, setFolderModalOpen]   = useState(false);
@@ -101,6 +107,7 @@ export default function App() {
 	const handleCreateReport = async (name: string, parentId: string, description: string, salesforceObjectName: string, serviceNowTableName: string, isPublic: boolean) => {
 		try {
 			const result = await createReport({ name, folderid: parentId, description, salesforceObjectName, serviceNowTableName, isPublic });
+			rememberListContext();
 			setActiveReportId(result.sys_id);
 			setOpenInRunMode(false);
 			setViewMode('builder');
@@ -133,6 +140,7 @@ export default function App() {
 				serviceNowObject: report?.serviceNowObject,
 				openedAt: new Date().toISOString(),
 			});
+			rememberListContext();
 			setActiveTabId(id);
 			setActiveTabName(name);
 			setViewMode('builder');
@@ -156,19 +164,23 @@ export default function App() {
 		}
 	};
 	const handleRunReport = (report: ReportListItem) => {
+		rememberListContext();
 		setOpenInRunMode(true);
 		setActiveReportId(report.id);
 		setViewMode('builder');
 	};
 
 	const handleEditReport = (report: ReportListItem) => {
+		rememberListContext();
 		setOpenInRunMode(false);
 		setActiveReportId(report.id);
 		setViewMode('builder');
 	};
 
-	const handleBackToExplorer = (folderId: string) => {
-		setActiveTabId(folderId);
+	const handleBackToExplorer = (_folderId: string) => {
+		const ctx = lastListContextRef.current;
+		setActiveTabId(ctx.id);
+		setActiveTabName(ctx.name);
 		setViewMode('list');
 		setActiveReportId('');
 		setOpenInRunMode(false);

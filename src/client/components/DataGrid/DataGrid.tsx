@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { type AvailableField } from '../ReportBuilder/ReportBuilder';
 import './DataGrid.css';
@@ -153,6 +153,57 @@ const DataGrid: React.FC<DataGridProps> = ({
   const resizingRef       = useRef<{ field: string; startX: number; startWidth: number } | null>(null);
   const summarizeItemRef  = useRef<HTMLDivElement>(null);
   const submenuTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // ─── Fixed footer (toggles + horizontal scroll proxy) ─────────────────────
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const scrollProxyRef     = useRef<HTMLDivElement>(null);
+  const [footerRect, setFooterRect]     = useState<{ left: number; width: number } | null>(null);
+  const [needsHScroll, setNeedsHScroll] = useState(false);
+  const [gridVisible, setGridVisible]   = useState(true);
+
+  const measureFooter = useCallback(() => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    setFooterRect({ left: rect.left, width: rect.width });
+    setNeedsHScroll(el.scrollWidth > el.clientWidth + 1);
+  }, []);
+
+  useEffect(() => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    measureFooter();
+
+    const ro = new ResizeObserver(measureFooter);
+    ro.observe(el);
+    window.addEventListener('resize', measureFooter);
+
+    const io = new IntersectionObserver(
+      entries => setGridVisible(entries[0]?.isIntersecting ?? true),
+      { threshold: 0 }
+    );
+    io.observe(el);
+
+    return () => {
+      ro.disconnect();
+      io.disconnect();
+      window.removeEventListener('resize', measureFooter);
+    };
+  }, [measureFooter]);
+
+  // Re-measure when the table width changes (column resize / add / remove)
+  useEffect(() => { measureFooter(); }, [measureFooter, colStates, columns.length]);
+
+  const syncFromContainer = () => {
+    if (scrollProxyRef.current && scrollContainerRef.current) {
+      scrollProxyRef.current.scrollLeft = scrollContainerRef.current.scrollLeft;
+    }
+  };
+  const syncFromProxy = () => {
+    if (scrollProxyRef.current && scrollContainerRef.current) {
+      scrollContainerRef.current.scrollLeft = scrollProxyRef.current.scrollLeft;
+    }
+  };
 
   // ─── Compute displayRows synchronously on every render ────────────────────
   // This ensures sort is always in sync with state — no async lag
@@ -479,9 +530,18 @@ const DataGrid: React.FC<DataGridProps> = ({
   };
 
   // ─── Render ───────────────────────────────────────────────────────────────
+  const showFixedFooter = gridVisible && footerRect && (isGrouped || needsHScroll);
+  const footerHeight    = (isGrouped ? 44 : 0) + (needsHScroll ? 16 : 0);
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column' }}>
-      <div style={{ position: 'relative', overflow: 'auto', width: '100%', flex: 1 }} onClick={closeMenu}>
+    <div style={{ display: 'flex', flexDirection: 'column', marginBottom: showFixedFooter ? footerHeight : 0 }}>
+      <div
+        ref={scrollContainerRef}
+        onScroll={syncFromContainer}
+        className="dg-scroll-container"
+        style={{ position: 'relative', overflow: 'auto', width: '100%', flex: 1 }}
+        onClick={closeMenu}
+      >
         <table
           className="dg-table"
           style={{ width: activeColumns.reduce((s, c) => s + (colStates[c]?.width ?? DEFAULT_COL_WIDTH), 0) }}
@@ -557,11 +617,37 @@ const DataGrid: React.FC<DataGridProps> = ({
         </table>
       </div>
 
-      {isGrouped && (
-        <div className="dg-toolbar">
-          <Toggle label="Subtotals"   checked={showSubtotals}   onChange={setShowSubtotals} />
-          <Toggle label="Grand Total" checked={showGrandTotal}  onChange={setShowGrandTotal} />
-        </div>
+      {/* ── Fixed footer: horizontal scroll proxy + grouping toggles ── */}
+      {showFixedFooter && createPortal(
+        <div
+          style={{
+            position: 'fixed',
+            bottom: 0,
+            left: footerRect.left,
+            width: footerRect.width,
+            zIndex: 100,
+            backgroundColor: '#fff',
+            borderTop: '1px solid #DFE1E6',
+            boxShadow: '0 -2px 6px rgba(9, 30, 66, 0.08)',
+          }}
+        >
+          {needsHScroll && (
+            <div
+              ref={scrollProxyRef}
+              onScroll={syncFromProxy}
+              style={{ overflowX: 'auto', overflowY: 'hidden', height: 16 }}
+            >
+              <div style={{ width: activeColumns.reduce((s, c) => s + (colStates[c]?.width ?? DEFAULT_COL_WIDTH), 0), height: 1 }} />
+            </div>
+          )}
+          {isGrouped && (
+            <div className="dg-toolbar">
+              <Toggle label="Subtotals"   checked={showSubtotals}   onChange={setShowSubtotals} />
+              <Toggle label="Grand Total" checked={showGrandTotal}  onChange={setShowGrandTotal} />
+            </div>
+          )}
+        </div>,
+        document.body
       )}
 
       {openMenuCol && menuPosition && createPortal(

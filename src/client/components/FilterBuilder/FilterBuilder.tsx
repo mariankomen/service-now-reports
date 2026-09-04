@@ -7,6 +7,7 @@ import {
   isBooleanOperator,
   buildDefaultLogic,
   buildEncodedQuery,
+  normalizeFieldId,
 } from '../../utils/filterBuilder';
 
 // ─── Unique id helper ─────────────────────────────────────────────────────────
@@ -30,7 +31,7 @@ const FilterBuilder: React.FC<FilterBuilderProps> = ({
   const [editLogic, setEditLogic]     = useState(false);
   const [logicError, setLogicError]   = useState('');
 
-  // Only SN fields
+  const sfFields = availableFields.filter(f => f.id.startsWith('SF.'));
   const snFields = availableFields.filter(f => f.id.startsWith('SN.'));
 
   // Sync when report loads (initialConditions/logic changes from outside)
@@ -42,10 +43,10 @@ const FilterBuilder: React.FC<FilterBuilderProps> = ({
   // ─── Handlers ────────────────────────────────────────────────────────────────
 
   const addCondition = () => {
-    const firstField = snFields[0];
+    const firstField = snFields[0] ?? sfFields[0];
     const newCondition: FilterCondition = {
       id: uid(),
-      field: firstField ? firstField.id.replace('SN.', '') : '',
+      field: firstField ? firstField.id : '',
       operator: '=',
       value: '',
     };
@@ -99,7 +100,7 @@ const FilterBuilder: React.FC<FilterBuilderProps> = ({
   };
 
   const getFieldType = (fieldId: string): string => {
-    const field = snFields.find(f => f.id === `SN.${fieldId}`);
+    const field = availableFields.find(f => f.id === normalizeFieldId(fieldId));
     return field?.type ?? 'string';
   };
 
@@ -126,14 +127,25 @@ const FilterBuilder: React.FC<FilterBuilderProps> = ({
 
               {/* ── Field ── */}
               <select
-                value={`SN.${condition.field}`}
-                onChange={e => updateCondition(condition.id, { field: e.target.value.replace('SN.', '') })}
+                value={condition.field ? normalizeFieldId(condition.field) : ''}
+                onChange={e => updateCondition(condition.id, { field: e.target.value })}
                 style={selectStyle}
               >
                 <option value="">Select field...</option>
-                {snFields.map(f => (
-                  <option key={f.id} value={f.id}>{f.label}</option>
-                ))}
+                {sfFields.length > 0 && (
+                  <optgroup label="Salesforce Fields">
+                    {sfFields.map(f => (
+                      <option key={f.id} value={f.id}>{f.label}</option>
+                    ))}
+                  </optgroup>
+                )}
+                {snFields.length > 0 && (
+                  <optgroup label="ServiceNow Fields">
+                    {snFields.map(f => (
+                      <option key={f.id} value={f.id}>{f.label}</option>
+                    ))}
+                  </optgroup>
+                )}
               </select>
 
               {/* ── Operator ── */}

@@ -2,10 +2,22 @@
 
 export type FilterCondition = {
   id: string;
-  field: string;      // SN field element e.g. "active"
+  field: string;      // full field id e.g. "SN.active" / "SF.Status" (legacy: bare SN element e.g. "active")
   operator: string;   // "=", "!=", "LIKE", etc.
   value: string;      // "true", "software", etc.
 };
+
+// ─── Field id helpers ─────────────────────────────────────────────────────────
+// Legacy saved conditions stored the bare SN element name without a prefix
+
+export const normalizeFieldId = (field: string): string =>
+  field.startsWith('SF.') || field.startsWith('SN.') ? field : `SN.${field}`;
+
+export const isSalesforceCondition = (c: FilterCondition): boolean =>
+  normalizeFieldId(c.field).startsWith('SF.');
+
+export const hasSalesforceConditions = (conditions: FilterCondition[]): boolean =>
+  conditions.some(isSalesforceCondition);
 
 // ─── Operators by field type ──────────────────────────────────────────────────
 
@@ -65,6 +77,23 @@ const TYPE_MAP: Record<string, { label: string; value: string }[]> = {
   glide_date_time:   dateOps,
   due_date:          dateOps,
   glide_time:        dateOps,
+  // ─── Salesforce field types ───
+  picklist:          stringOps,
+  multipicklist:     stringOps,
+  combobox:          stringOps,
+  textarea:          stringOps,
+  id:                stringOps,
+  encryptedstring:   stringOps,
+  address:           stringOps,
+  currency:          numericOps,
+  currency2:         numericOps,
+  double:            numericOps,
+  int:               numericOps,
+  percent:           numericOps,
+  number:            numericOps,
+  date:              dateOps,
+  datetime:          dateOps,
+  time:              dateOps,
 };
 
 export const getOperatorsForType = (type: string): { label: string; value: string }[] =>
@@ -81,6 +110,88 @@ export const isEmptyOperator = (operator: string): boolean =>
 export const buildDefaultLogic = (conditions: FilterCondition[]): string =>
   conditions.map((_, i) => i + 1).join(' AND ');
 
+// ─── Client-side condition evaluation ────────────────────────────────────────
+// Used for Salesforce fields (the server can only filter the SN table) and for
+// mixed SF/SN logic. Values are compared against the display values in the row.
+
+const isEmptyValue = (raw: any): boolean =>
+  raw == null || String(raw).trim() === '' || String(raw) === '-';
+
+const conditionMatches = (row: Record<string, any>, c: FilterCondition): boolean => {
+  const raw = row[normalizeFieldId(c.field)];
+  const op  = c.operator;
+
+  if (op === 'ISEMPTY')    return isEmptyValue(raw);
+  if (op === 'ISNOTEMPTY') return !isEmptyValue(raw);
+  if (op === '=true')      return String(raw).toLowerCase() === 'true';
+  if (op === '=false')     return String(raw).toLowerCase() === 'false';
+
+  const rowStr = raw == null ? '' : String(raw);
+  const valStr = String(c.value ?? '');
+  const a = rowStr.toLowerCase();
+  const b = valStr.toLowerCase();
+
+  if (op === 'LIKE')       return a.includes(b);
+  if (op === 'STARTSWITH') return a.startsWith(b);
+  if (op === 'ENDSWITH')   return a.endsWith(b);
+  if (op === '=')          return a === b;
+  if (op === '!=')         return a !== b;
+
+  // Ordered comparison: numeric first, then date, then string
+  const numA = parseFloat(rowStr.replace(/[$,]/g, ''));
+  const numB = parseFloat(valStr.replace(/[$,]/g, ''));
+  let cmp: number;
+  if (!isNaN(numA) && !isNaN(numB)) {
+    cmp = numA - numB;
+  } else {
+    const dateA = Date.parse(rowStr);
+    const dateB = Date.parse(valStr);
+    cmp = !isNaN(dateA) && !isNaN(dateB) ? dateA - dateB : rowStr.localeCompare(valStr);
+  }
+  if (op === '>')  return cmp > 0;
+  if (op === '<')  return cmp < 0;
+  if (op === '>=') return cmp >= 0;
+  if (op === '<=') return cmp <= 0;
+  return true;
+};
+
+export const evaluateConditions = (
+  row: Record<string, any>,
+  conditions: FilterCondition[],
+  logic: string
+): boolean => {
+  if (!conditions.length) return true;
+
+  const expr   = (logic && logic.trim()) || buildDefaultLogic(conditions);
+  const tokens = expr.toUpperCase().match(/\d+|AND|OR|\(|\)/g) ?? [];
+  let pos = 0;
+
+  const parseExpr = (): boolean => {           // OR level
+    let left = parseTerm();
+    while (tokens[pos] === 'OR') { pos++; const right = parseTerm(); left = left || right; }
+    return left;
+  };
+  const parseTerm = (): boolean => {           // AND level
+    let left = parseFactor();
+    while (tokens[pos] === 'AND') { pos++; const right = parseFactor(); left = left && right; }
+    return left;
+  };
+  const parseFactor = (): boolean => {
+    const token = tokens[pos];
+    if (token === '(') {
+      pos++;
+      const val = parseExpr();
+      if (tokens[pos] === ')') pos++;
+      return val;
+    }
+    pos++;
+    const c = conditions[parseInt(token ?? '') - 1];
+    return c ? conditionMatches(row, c) : true;
+  };
+
+  try { return parseExpr(); } catch { return true; }
+};
+
 // ─── Build ServiceNow encoded query ──────────────────────────────────────────
 
 export const buildEncodedQuery = (
@@ -89,11 +200,17 @@ export const buildEncodedQuery = (
 ): string => {
   if (!conditions.length) return '';
 
-  // Build encoded string per condition
+  // Salesforce conditions are evaluated client-side. When they are mixed with
+  // OR logic, pre-filtering by the SN part on the server would drop rows that
+  // only match the SF part — so the whole filter moves to the client.
+  if (hasSalesforceConditions(conditions) && /\bOR\b/i.test(logic)) return '';
+
+  // Build encoded string per condition (SN element name without prefix)
   const encodeCondition = (c: FilterCondition): string => {
-    if (isEmptyOperator(c.operator)) return `${c.field}${c.operator}`;
-    if (isBooleanOperator(c.operator)) return `${c.field}${c.operator}`;
-    return `${c.field}${c.operator}${c.value}`;
+    const el = normalizeFieldId(c.field).replace('SN.', '');
+    if (isEmptyOperator(c.operator)) return `${el}${c.operator}`;
+    if (isBooleanOperator(c.operator)) return `${el}${c.operator}`;
+    return `${el}${c.operator}${c.value}`;
   };
 
   // Parse the logic string and build encoded query
@@ -128,6 +245,7 @@ export const buildEncodedQuery = (
     const idx = parseInt(match[1]);
     const c = conditions[idx];
     if (!c) continue;
+    if (isSalesforceCondition(c)) continue; // SF conditions are applied client-side
 
     const condStr = encodeCondition(c);
 

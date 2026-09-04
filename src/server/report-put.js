@@ -34,7 +34,7 @@
         if (body.columns)         gr.columns          = body.columns;
         if (body.chartType)       gr.chart_type       = body.chartType;
         if (body.groupBy)         gr.group_by         = body.groupBy;
-        if (body.filterQuery)     gr.filter_query     = body.filterQuery;
+        if (body.filterQuery !== undefined) gr.filter_query = body.filterQuery; // allow clearing a stale query
         if (body.chartGroupBy)    gr.chart_group_by   = body.chartGroupBy;
         if (body.folderid)        gr.folderid         = body.folderid;
         if (body.filterConditions) gr.filter_conditions = body.filterConditions;

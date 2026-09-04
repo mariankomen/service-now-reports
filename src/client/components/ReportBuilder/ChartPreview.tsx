@@ -2,6 +2,7 @@ import React from 'react';
 import ChartPie from '../Charts/ChartPie';
 import ChartBar from '../Charts/ChartBar';
 import ChartLine from '../Charts/ChartLine';
+import { formatChartValue, type ChartValueFormat } from '../Charts/chartFormat';
 
 export interface ChartDataItem {
   name: string;
@@ -14,6 +15,7 @@ interface ChartPreviewProps {
   chartType?: 'donut' | 'bar' | 'line' | 'table';
   seriesName?: string;
   yAxisLabel?: string;
+  valueFormat?: ChartValueFormat;
 }
 
 const emptyStyle: React.CSSProperties = {
@@ -22,14 +24,14 @@ const emptyStyle: React.CSSProperties = {
 };
 
 const ChartPreview: React.FC<ChartPreviewProps> = ({
-  data, loading = false, chartType = 'donut', seriesName = 'Count', yAxisLabel = 'Value'
+  data, loading = false, chartType = 'donut', seriesName = 'Count', yAxisLabel = 'Value', valueFormat = 'number'
 }) => {
   if (loading) return <div style={emptyStyle}>Loading chart data...</div>;
   if (!data || data.length === 0) return <div style={emptyStyle}>No data to display</div>;
 
-  if (chartType === 'donut') return <ChartPie  data={data} loading={loading} seriesName={seriesName} />;
-  if (chartType === 'bar')   return <ChartBar  data={data} loading={loading} seriesName={seriesName} yAxisLabel={yAxisLabel} />;
-  if (chartType === 'line')  return <ChartLine data={data} loading={loading} seriesName={seriesName} yAxisLabel={yAxisLabel} />;
+  if (chartType === 'donut') return <ChartPie  data={data} loading={loading} seriesName={seriesName} valueFormat={valueFormat} />;
+  if (chartType === 'bar')   return <ChartBar  data={data} loading={loading} seriesName={seriesName} yAxisLabel={yAxisLabel} valueFormat={valueFormat} />;
+  if (chartType === 'line')  return <ChartLine data={data} loading={loading} seriesName={seriesName} yAxisLabel={yAxisLabel} valueFormat={valueFormat} />;
 
   if (chartType === 'table') {
     return (
@@ -45,7 +47,7 @@ const ChartPreview: React.FC<ChartPreviewProps> = ({
             {data.map((item, i) => (
               <tr key={i} style={{ borderBottom: '1px solid #EBECF0', backgroundColor: i % 2 === 0 ? '#fff' : '#FAFBFC' }}>
                 <td style={{ padding: '7px 12px', color: '#172B4D' }}>{item.name}</td>
-                <td style={{ padding: '7px 12px', color: '#172B4D', textAlign: 'right' }}>{item.value}</td>
+                <td style={{ padding: '7px 12px', color: '#172B4D', textAlign: 'right' }}>{formatChartValue(item.value, valueFormat)}</td>
               </tr>
             ))}
           </tbody>

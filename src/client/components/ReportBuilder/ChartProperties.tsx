@@ -37,8 +37,13 @@ interface ChartPropertiesProps {
 
 const ChartProperties: React.FC<ChartPropertiesProps> = ({ filters, setFilters, availableFields }) => {
 
+  // ─── Only fields added to the report, in report column order ──────────────
+  const reportFields = (filters.selectedFields ?? []).map(
+    id => availableFields.find(f => f.id === id) ?? { id, label: id }
+  );
+
   // ─── Only numeric fields for value aggregation ────────────────────────────
-  const numericFields = availableFields.filter(f => NUMERIC_TYPES.has(f.type ?? ''));
+  const numericFields = reportFields.filter(f => NUMERIC_TYPES.has((f as AvailableField).type ?? ''));
 
   const metric      = (filters.chartMetric as ChartMetric) ?? 'count';
   const valueField  = filters.chartValueField ?? '';
@@ -78,7 +83,7 @@ const ChartProperties: React.FC<ChartPropertiesProps> = ({ filters, setFilters, 
           onChange={e => setFilters(prev => ({ ...prev, chartGroupBy: e.target.value }))}
         >
           <option value="">— Select field —</option>
-          {availableFields.map(f => (
+          {reportFields.map(f => (
             <option key={f.id} value={f.id}>{f.label}</option>
           ))}
         </select>

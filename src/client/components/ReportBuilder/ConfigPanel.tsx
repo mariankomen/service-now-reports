@@ -15,10 +15,11 @@ import {
 interface ConfigPanelProps {
   filters: FilterConfig;
   setFilters: React.Dispatch<React.SetStateAction<FilterConfig>>;
-  onRun: () => void;
+  onRun: (patch?: Partial<FilterConfig>) => void;
   availableFields: AvailableField[];
-  rawData?: any[];      // ← for live statistics
-  reportMeta?: {        // ← extra info from report record
+  rawData?: any[];        // ← for live statistics
+  totalRecords?: number;  // ← full record count from the server (ignores the SF-only toggle)
+  reportMeta?: {          // ← extra info from report record
     createdDate?: string;
     owner?: string;
     description?: string;
@@ -26,7 +27,7 @@ interface ConfigPanelProps {
 }
 
 const ConfigPanel: React.FC<ConfigPanelProps> = ({
-  filters, setFilters, onRun, availableFields, rawData = [], reportMeta = {}
+  filters, setFilters, onRun, availableFields, rawData = [], totalRecords, reportMeta = {}
 }) => {
   const [activeTab, setActiveTab] = useState('outline');
   const groupBy = filters.groupBy ?? [];
@@ -37,12 +38,14 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
   );
 
   // ─── Live stats ───────────────────────────────────────────────────────────
+  // Total comes from the server (full count), so the numbers stay the same
+  // whether or not "Show only records with Salesforce data" is enabled
   const stats = useMemo(() => {
-    const total    = rawData.length;
+    const total    = totalRecords ?? rawData.length;
     const linked   = rawData.filter(r => Object.keys(r).some(k => k.startsWith('SF.') && r[k] != null && r[k] !== '-')).length;
-    const unlinked = total - linked;
+    const unlinked = Math.max(total - linked, 0);
     return { total, linked, unlinked };
-  }, [rawData]);
+  }, [rawData, totalRecords]);
 
   // ─── Handlers ────────────────────────────────────────────────────────────
   const handleAddGroupBy = (field: string) => {
@@ -196,13 +199,13 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
               logic={filters.filterLogic ?? ''}
               availableFields={availableFields}
               onApply={(conditions, logic, encodedQuery) => {
-                setFilters(prev => ({
-                  ...prev,
+                const patch = {
                   filterConditions: conditions,
                   filterLogic: logic,
                   filterQuery: encodedQuery,
-                }));
-                onRun();
+                };
+                setFilters(prev => ({ ...prev, ...patch }));
+                onRun(patch);
               }}
             />
             <div style={{ borderTop: '1px solid #DFE1E6', paddingTop: 12 }}>

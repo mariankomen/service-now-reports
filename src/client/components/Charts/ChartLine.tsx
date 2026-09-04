@@ -1,6 +1,7 @@
 import React from 'react';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
+import { formatChartValue, type ChartValueFormat } from './chartFormat';
 
 export interface ChartDataItem {
   name: string;
@@ -12,9 +13,10 @@ interface Props {
   loading?: boolean;
   seriesName?: string;
   yAxisLabel?: string;
+  valueFormat?: ChartValueFormat;
 }
 
-const ChartLine: React.FC<Props> = ({ data, loading = false, seriesName = 'Count', yAxisLabel = 'Value' }) => {
+const ChartLine: React.FC<Props> = ({ data, loading = false, seriesName = 'Count', yAxisLabel = 'Value', valueFormat = 'number' }) => {
   if (loading) return <div>Loading...</div>;
   if (!data?.length) return <div>No data</div>;
 
@@ -29,16 +31,32 @@ const ChartLine: React.FC<Props> = ({ data, loading = false, seriesName = 'Count
     },
     yAxis: {
       title: { text: yAxisLabel, style: { color: '#42526E', fontSize: '11px' } },
-      labels: { style: { fontSize: '11px' } }
+      labels: {
+        style: { fontSize: '11px' },
+        formatter() {
+          const def = this.axis.defaultLabelFormatter.call(this);
+          if (valueFormat === 'currency') return '$' + def;
+          if (valueFormat === 'percent')  return def + '%';
+          return def;
+        },
+      }
     },
     tooltip: {
       shared: true,
       headerFormat: '<b>{point.key}</b><br/>',
-      pointFormat: `${seriesName}: <b>{point.y}</b>`,
+      pointFormatter() {
+        return `${seriesName}: <b>${formatChartValue(this.y ?? 0, valueFormat)}</b>`;
+      },
     },
     plotOptions: {
       line: {
-        dataLabels: { enabled: true, style: { fontSize: '10px', fontWeight: '500' } },
+        dataLabels: {
+          enabled: true,
+          style: { fontSize: '10px', fontWeight: '500' },
+          formatter() {
+            return formatChartValue(this.y ?? 0, valueFormat);
+          },
+        },
         enableMouseTracking: true,
         marker: { radius: 4 },
         color: '#0052CC',

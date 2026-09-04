@@ -1,6 +1,7 @@
 import React from 'react';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
+import { formatChartValue, type ChartValueFormat } from './chartFormat';
 
 export interface ChartDataItem {
   name: string;
@@ -11,11 +12,12 @@ interface Props {
   data: ChartDataItem[];
   loading?: boolean;
   seriesName?: string;
+  valueFormat?: ChartValueFormat;
 }
 
 const COLORS = ['#0052CC', '#00A1E0', '#62B136', '#FF8B00', '#8777D9', '#00C7E6', '#FF5630', '#36B37E'];
 
-const ChartPie: React.FC<Props> = ({ data, loading = false, seriesName = 'Count' }) => {
+const ChartPie: React.FC<Props> = ({ data, loading = false, seriesName = 'Count', valueFormat = 'number' }) => {
   if (loading) return <div>Loading...</div>;
   if (!data?.length) return <div>No data</div>;
 
@@ -24,7 +26,9 @@ const ChartPie: React.FC<Props> = ({ data, loading = false, seriesName = 'Count'
     title: { text: undefined },
     credits: { enabled: false },
     tooltip: {
-      pointFormat: `<b>{point.name}</b><br/>${seriesName}: <b>{point.y}</b><br/>Share: <b>{point.percentage:.1f}%</b>`,
+      pointFormatter() {
+        return `<b>${this.name}</b><br/>${seriesName}: <b>${formatChartValue(this.y ?? 0, valueFormat)}</b><br/>Share: <b>${(this.percentage ?? 0).toFixed(1)}%</b>`;
+      },
     },
     plotOptions: {
       pie: {
