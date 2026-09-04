@@ -316,8 +316,9 @@ const FieldsSidebar: React.FC<FieldsSidebarProps> = ({ availableFields, selected
             </div>
 
             {/* ── Fields with transition ── */}
+            {/* Cap scales with the field count plus headroom for expanded lookup children */}
             <div style={{
-              maxHeight: section.isExpanded ? '2000px' : '0px',
+              maxHeight: section.isExpanded ? `${section.fields.length * 40 + 10000}px` : '0px',
               overflow: 'hidden',
               transition: 'max-height 0.3s ease',
             }}>
