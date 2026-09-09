@@ -190,6 +190,10 @@ declare global {
                         table: 'sys_script_include'
                         id: '15394b73cf594458b0f7b5dbc9c6b036'
                     }
+                    servicenow_reference_search_get_route: {
+                        table: 'sys_ws_operation'
+                        id: 'f9816ec00fae49db918c876f348f6236'
+                    }
                     servicenow_tables_get_route: {
                         table: 'sys_ws_operation'
                         id: '0347d16090034830b527ca1fb4e4239a'
@@ -307,6 +311,10 @@ declare global {
                     'src_server_service-now-tables-get_js': {
                         table: 'sys_module'
                         id: '8f5460f0d47740eb831e6366a94c4a03'
+                    }
+                    'src_server_servicenow-reference-search-get_js': {
+                        table: 'sys_module'
+                        id: '0bef1c943ef34deb961a4aca977c7073'
                     }
                     'src_server_services_access-service_js': {
                         table: 'sys_module'

@@ -105,6 +105,14 @@ RestApi({
             enforceAcl: [salesforceIntegrationRestEndpointAcl]
         },
         {
+            $id: Now.ID['servicenow_reference_search_get_route'],
+            path: '/servicenow/reference/search',
+            method: 'GET',
+            script: Now.include('../../server/servicenow-reference-search-get.js'),
+            shortDescription: 'SN Reference Search GET',
+            enforceAcl: [salesforceIntegrationRestEndpointAcl]
+        },
+        {
             $id: Now.ID['report_get_route'],
             path: '/report',
             method: 'GET',

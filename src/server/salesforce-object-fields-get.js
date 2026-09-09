@@ -44,12 +44,24 @@
         // ─── Map fields ───────────────────────────────────────────────────────
         var allFields = parsed && parsed.fields ? parsed.fields : [];
         var filteredFields = allFields.map(function(el) {
+            // Picklist values power the value dropdown in the filter builder
+            var choices = [];
+            var picklist = el.picklistValues || [];
+            for (var p = 0; p < picklist.length; p++) {
+                if (picklist[p].active === false) continue;
+                choices.push({
+                    label: picklist[p].label || picklist[p].value,
+                    value: picklist[p].value
+                });
+            }
+
             return {
                 label:            el.label,
                 apiname:          el.name,
                 type:             el.type,
                 referenceTo:      el.referenceTo || [],
-                relationshipName: el.relationshipName || null
+                relationshipName: el.relationshipName || null,
+                choices:          choices
             };
         });
 

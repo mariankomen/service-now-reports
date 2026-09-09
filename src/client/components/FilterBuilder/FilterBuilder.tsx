@@ -2,13 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { type AvailableField } from '../ReportBuilder/ReportBuilder';
 import {
   type FilterCondition,
-  getOperatorsForType,
-  isEmptyOperator,
-  isBooleanOperator,
+  getOperatorsForField,
+  getInputKind,
+  findField,
   buildDefaultLogic,
   buildEncodedQuery,
   normalizeFieldId,
 } from '../../utils/filterBuilder';
+import FilterValueInput from './FilterValueInput';
 
 // ─── Unique id helper ─────────────────────────────────────────────────────────
 const uid = () => Math.random().toString(36).slice(2, 8);
@@ -42,12 +43,17 @@ const FilterBuilder: React.FC<FilterBuilderProps> = ({
 
   // ─── Handlers ────────────────────────────────────────────────────────────────
 
+  // The default operator depends on the field type — booleans, choices and
+  // references do not offer the plain "=" that other types start with
+  const defaultOperatorFor = (fieldId: string): string =>
+    getOperatorsForField(findField(availableFields, fieldId))[0]?.value ?? '=';
+
   const addCondition = () => {
     const firstField = snFields[0] ?? sfFields[0];
     const newCondition: FilterCondition = {
       id: uid(),
       field: firstField ? firstField.id : '',
-      operator: '=',
+      operator: firstField ? defaultOperatorFor(firstField.id) : '=',
       value: '',
     };
     const newConditions = [...conditions, newCondition];
@@ -69,14 +75,15 @@ const FilterBuilder: React.FC<FilterBuilderProps> = ({
     setConditions(prev => prev.map(c => {
       if (c.id !== id) return c;
       const updated = { ...c, ...patch };
-      if (patch.operator) {
-        if (isEmptyOperator(patch.operator) || isBooleanOperator(patch.operator)) {
-          updated.value = '';
-        }
+
+      if (patch.operator && getInputKind(findField(availableFields, updated.field), patch.operator) === 'none') {
+        updated.value = '';
+        updated.displayValue = '';
       }
       if (patch.field) {
-        updated.operator = '=';
+        updated.operator = defaultOperatorFor(patch.field);
         updated.value = '';
+        updated.displayValue = '';
       }
       return updated;
     }));
@@ -99,11 +106,6 @@ const FilterBuilder: React.FC<FilterBuilderProps> = ({
     onApply(conditions, localLogic, encoded);
   };
 
-  const getFieldType = (fieldId: string): string => {
-    const field = availableFields.find(f => f.id === normalizeFieldId(fieldId));
-    return field?.type ?? 'string';
-  };
-
   // ─── Render ───────────────────────────────────────────────────────────────────
 
   return (
@@ -116,9 +118,15 @@ const FilterBuilder: React.FC<FilterBuilderProps> = ({
         </div>
       ) : (
         conditions.map((condition, index) => {
-          const fieldType = getFieldType(condition.field);
-          const operators = getOperatorsForType(fieldType);
-          const showValue = !isEmptyOperator(condition.operator) && !isBooleanOperator(condition.operator);
+          const field     = findField(availableFields, condition.field);
+          const operators = getOperatorsForField(field);
+          const inputKind = getInputKind(field, condition.operator);
+
+          // A saved operator may no longer be offered for this field type —
+          // keep it in the list so the selection stays visible until changed
+          const operatorOptions = operators.some(o => o.value === condition.operator)
+            ? operators
+            : operators.concat([{ label: condition.operator, value: condition.operator }]);
 
           return (
             <div key={condition.id} style={conditionRowStyle}>
@@ -154,18 +162,18 @@ const FilterBuilder: React.FC<FilterBuilderProps> = ({
                 onChange={e => updateCondition(condition.id, { operator: e.target.value })}
                 style={{ ...selectStyle, minWidth: 130 }}
               >
-                {operators.map(op => (
+                {operatorOptions.map(op => (
                   <option key={op.value} value={op.value}>{op.label}</option>
                 ))}
               </select>
 
-              {/* ── Value ── */}
-              {showValue && (
-                <input
-                  type="text"
-                  value={condition.value}
-                  onChange={e => updateCondition(condition.id, { value: e.target.value })}
-                  placeholder="Value..."
+              {/* ── Value — input type follows the field type ── */}
+              {inputKind !== 'none' && (
+                <FilterValueInput
+                  kind={inputKind}
+                  field={field}
+                  condition={condition}
+                  onChange={patch => updateCondition(condition.id, patch)}
                   style={inputStyle}
                 />
               )}

@@ -5,12 +5,18 @@ export type SalesforceSObject = {
   apiname: string;
 };
 
+export type FieldChoice = {
+  label: string;
+  value: string;
+};
+
 export type SalesforceSObjectField = {
   label:             string;
   apiname:           string;
   type?:             string;
   referenceTo?:      string[];
   relationshipName?: string | null;
+  choices?:          FieldChoice[];   // picklist values, used by the filter builder
 };
 
 class SalesforceSObjectService {

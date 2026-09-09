@@ -48,12 +48,19 @@ export type FilterConfig = {
   [key: string]: any;
 };
 
+export type FieldChoice = {
+  label: string;
+  value: string;
+};
+
 export type AvailableField = {
   id: string;
   label: string;
   type?: string;
   referenceTo?: string[];
   relationshipName?: string | null;
+  choices?: FieldChoice[];      // picklist / choice list values for the filter builder
+  referenceTable?: string;      // target table of a ServiceNow reference field
 };
 
 type ReportBuilderProps = {
@@ -159,42 +166,55 @@ const ReportBuilder: React.FC<ReportBuilderProps> = ({ reportId, onBack, onSave,
         setFilters(loaded);
         savedFiltersRef.current = deepClone(loaded);
 
-        // ─── Run with the loaded config — filters state is not updated yet ──
-        handleRun(loaded);
-
         const usedFieldIds = [
           ...loaded.selectedFields,
           ...loaded.groupBy,
           ...(loaded.chartGroupBy ? [loaded.chartGroupBy] : []),
         ];
-        getAvailableFields(loaded.sfObjectName, loaded.snObjectName, usedFieldIds);
+
+        // ─── Field metadata first — client-side filtering needs field types ──
+        const fields = await getAvailableFields(loaded.sfObjectName, loaded.snObjectName, usedFieldIds);
+
+        // ─── Run with the loaded config — state is not updated yet ──────────
+        handleRun(loaded, fields);
       } catch (e) {
         console.error(e);
       }
     };
 
-    const getAvailableFields = async (sfObject?: string, snObject?: string, usedFieldIds: string[] = []) => {
-      if (!sfObject || !snObject) return;
+    const getAvailableFields = async (
+      sfObject?: string,
+      snObject?: string,
+      usedFieldIds: string[] = []
+    ): Promise<AvailableField[]> => {
+      if (!sfObject || !snObject) return [];
 
       const availableSFFields = await sobjectService.getSObjectFields(sfObject);
-      const availableFieldsMapped = availableSFFields.map(el => ({
+      const availableFieldsMapped: AvailableField[] = availableSFFields.map(el => ({
         id: `SF.${el.apiname}`,
         label: el.label,
         type: el.type,
         referenceTo: el.referenceTo ?? [],
         relationshipName: el.relationshipName ?? null,
+        choices: el.choices ?? [],
       })).sort((a, b) => a.label.localeCompare(b.label));
 
       const availableSNFields = await tableService.getTableFields(snObject);
-      const availableSNFieldsMapped = availableSNFields.map(el => ({
+      const availableSNFieldsMapped: AvailableField[] = availableSNFields.map(el => ({
         id: `SN.${el.element}`,
         label: el.column_label,
-        type: el.internal_type?.value ?? 'string',
+        type: el.type ?? 'string',
+        choices: el.choices ?? [],
+        referenceTable: el.referenceTable,
       })).sort((a, b) => a.label.localeCompare(b.label));
 
-      setAvailableFields([...availableFieldsMapped, ...availableSNFieldsMapped]);
+      const combined = availableFieldsMapped.concat(availableSNFieldsMapped);
+      setAvailableFields(combined);
 
+      // Lookup labels resolve in the background — they only affect display
       resolveLookupLabels(usedFieldIds, availableFieldsMapped);
+
+      return combined;
     };
 
     // ─── Resolve "[object label]: [field label]" for saved lookup fields ────
@@ -299,7 +319,7 @@ const ReportBuilder: React.FC<ReportBuilderProps> = ({ reportId, onBack, onSave,
 
   const runIdRef = useRef(0);
 
-  const handleRun = async (filtersOverride?: FilterConfig) => {
+  const handleRun = async (filtersOverride?: FilterConfig, fieldsOverride?: AvailableField[]) => {
     const runId = ++runIdRef.current;
     try {
       const activeFilters = filtersOverride ?? filters;
@@ -362,7 +382,9 @@ const ReportBuilder: React.FC<ReportBuilderProps> = ({ reportId, onBack, onSave,
       // ─── Apply SF / mixed filter logic client-side ────────────────────────
       if (clientFiltering) {
         const logic = activeFilters.filterLogic || buildDefaultLogic(conditions);
-        allItems = allItems.filter(row => evaluateConditions(row, conditions, logic));
+        // Field metadata drives numeric/date aware comparison
+        const fieldsForEval = fieldsOverride ?? allFields;
+        allItems = allItems.filter(row => evaluateConditions(row, conditions, logic, fieldsForEval));
       }
 
       // ─── All pages loaded — show everything at once ───────────────────────
