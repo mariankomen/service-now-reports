@@ -13,6 +13,10 @@ export interface Report {
   showOnlyRecordsWithSalesforce?: boolean;
   filterQuery?: string;
   chartGroupBy?: string;
+  chartSeriesBy?: string;
+  chartTitle?: string;
+  chartMetric?: string;
+  chartValueField?: string;
   owner?: string;
   ownerName?: string;
   userRole?: string;

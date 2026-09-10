@@ -29,6 +29,7 @@ interface ReportListProps {
   onEditFolder: (folder: ReportListItem) => void;
   onMoveReport: (report: ReportListItem) => void;
   onDeleteItem: (item: ReportListItem) => void;
+  onFavoritesChange?: () => void;
 }
 
 type MenuPosition = { top: number; left: number };
@@ -85,6 +86,7 @@ const ReportList: React.FC<ReportListProps> = ({
   onEditReport,
   onMoveReport,
   onDeleteItem,
+  onFavoritesChange,
 }) => {
   console.log(reports)
   const [openMenuId, setOpenMenuId]         = useState<string | null>(null);
@@ -179,6 +181,7 @@ const ReportList: React.FC<ReportListProps> = ({
         setFavorites(prev => new Set(prev).add(report.id));
         await ReportService.addToFavorites(report.id);
       }
+      onFavoritesChange?.();
     } catch (e: any) {
       if (isFav) setFavorites(prev => new Set(prev).add(report.id));
       else setFavorites(prev => { const next = new Set(prev); next.delete(report.id); return next; });

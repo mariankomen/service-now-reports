@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import ReportService from '../services/ServiceNow/report-service';
 import type { Report } from '../interfaces';
 import type { CreateReportDto } from '../services/dtos';
@@ -25,7 +25,14 @@ export function useReports(params: UseReportsParams) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Requests started for an older tab must never overwrite newer results —
+  // switching away from a report fires both the outgoing and incoming fetch
+  const requestIdRef = useRef(0);
+
   const fetchReports = useCallback(async () => {
+    const requestId = ++requestIdRef.current;
+    const isCurrent = () => requestId === requestIdRef.current;
+
     setLoading(true);
     setError(null);
 
@@ -41,17 +48,17 @@ export function useReports(params: UseReportsParams) {
           serviceNowObject: r.serviceNowObject,
           createdDate: r.openedAt,
         }));
-        setReports(mapped);
+        if (isCurrent()) setReports(mapped);
         return;
       }
 
       // ─── All other types: fetch from API ──────────────────────────────
       const data = await ReportService.getReports({ type, folderId });
-      setReports(data);
+      if (isCurrent()) setReports(data);
     } catch (err: any) {
-      setError(err.message || 'Unknown error');
+      if (isCurrent()) setError(err.message || 'Unknown error');
     } finally {
-      setLoading(false);
+      if (isCurrent()) setLoading(false);
     }
   }, [type, folderId]);
 

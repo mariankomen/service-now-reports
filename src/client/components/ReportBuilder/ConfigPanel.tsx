@@ -10,6 +10,7 @@ import {
   AiOutlineBarChart,
   AiOutlineEdit,
   AiOutlineSetting,
+  AiOutlineEye,
 } from 'react-icons/ai';
 
 interface ConfigPanelProps {
@@ -280,6 +281,29 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
                   fontFamily: 'inherit', lineHeight: 1.5,
                 }}
               />
+            </div>
+
+            {/* ── Visibility ── */}
+            <div>
+              <div style={sectionTitleStyle}>
+                <AiOutlineEye size={12} style={{ marginRight: 5 }} /> VISIBILITY
+              </div>
+              <select
+                value={filters.isPublic ? 'public' : 'private'}
+                onChange={e => setFilters(prev => ({ ...prev, isPublic: e.target.value === 'public' }))}
+                style={{
+                  width: '100%', padding: '8px 10px',
+                  border: '1px solid #DFE1E6', borderRadius: 4,
+                  fontSize: 13, color: '#172B4D', backgroundColor: '#FAFBFC',
+                  outline: 'none', boxSizing: 'border-box', cursor: 'pointer',
+                }}
+              >
+                <option value="public">Public</option>
+                <option value="private">Private</option>
+              </select>
+              <p style={{ fontSize: 11, color: '#6B778C', margin: '6px 0 0 0', lineHeight: 1.4 }}>
+                Private reports are only visible to you. Public reports can be seen by all users.
+              </p>
             </div>
 
             {/* ── Data Settings ── */}

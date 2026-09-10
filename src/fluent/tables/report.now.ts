@@ -7,11 +7,28 @@ export const x_1955226_connecto_report = Table({
     schema: {
         chart_group_by: StringColumn({
             label: 'Chart Group By',
+            // Field ids can be long (dot-walked lookups), so match the other chart columns
+            maxLength: 120,
+        }),
+        chart_metric: StringColumn({
+            label: 'Chart Metric',
             maxLength: 40,
+        }),
+        chart_series_by: StringColumn({
+            label: 'Chart Series By',
+            maxLength: 120,
+        }),
+        chart_title: StringColumn({
+            label: 'Chart Title',
+            maxLength: 120,
         }),
         chart_type: StringColumn({
             label: 'Chart Type',
             maxLength: 40,
+        }),
+        chart_value_field: StringColumn({
+            label: 'Chart Value Field',
+            maxLength: 120,
         }),
         columns: StringColumn({
             label: 'Columns',

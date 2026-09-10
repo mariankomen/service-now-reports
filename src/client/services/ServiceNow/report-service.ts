@@ -37,6 +37,7 @@ class ReportService {
   private dataUrl      = `${this.baseUrl}/report/data`;
   private prefsUrl     = `${this.baseUrl}/user-prefs`;
   private favoritesUrl = `${this.baseUrl}/user-prefs/favorites`;
+  private countsUrl    = `${this.baseUrl}/counts`;
 
   // ─── Shared mapping ────────────────────────────────────────────────────────
   private mapReport(f: any): Report {
@@ -99,6 +100,14 @@ class ReportService {
       items:      data?.result?.data ?? [],
       pagination: data?.result?.pagination ?? null,
     };
+  }
+
+  // ─── Sidebar counts ────────────────────────────────────────────────────────
+  // One call returns the item count of every navigation category
+
+  async getCounts(): Promise<Record<string, number>> {
+    const data = await this.api.get<any>(this.countsUrl);
+    return data?.result?.counts ?? {};
   }
 
   // ─── Favorites ─────────────────────────────────────────────────────────────

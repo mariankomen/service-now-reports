@@ -47,6 +47,10 @@
             filterConditions:             gr.getValue('filter_conditions'),
             filterLogic:                  gr.getValue('filter_logic'),
             chartGroupBy:                 gr.getValue('chart_group_by'),
+            chartSeriesBy:                gr.getValue('chart_series_by'),
+            chartTitle:                   gr.getValue('chart_title'),
+            chartMetric:                  gr.getValue('chart_metric'),
+            chartValueField:              gr.getValue('chart_value_field'),
             showOnlyRecordsWithSalesforce: gr.getValue('show_only_with_sf_records') == '1',
             userRole:                     access.getRole(reportId, 'report'),
         };

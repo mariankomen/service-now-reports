@@ -7,6 +7,7 @@ import ReportList from './components/ReportList';
 import Sidebar from './components/Sidebar';
 import { type FolderType, useFolders } from './hooks/useFolders';
 import { type ReportType, useReports } from './hooks/useReports';
+import { useCounts } from './hooks/useCounts';
 import { type ReportListItem } from './interfaces';
 import type { Report } from './interfaces';
 import ReportBuilder from './components/ReportBuilder/ReportBuilder';
@@ -65,6 +66,9 @@ export default function App() {
 		folderId: isReportType ? undefined : activeTabId,
 	});
 
+	// ─── Sidebar item counts ──────────────────────────────────────────────────
+	const { counts, refreshCounts } = useCounts();
+
 	// ─── List items ───────────────────────────────────────────────────────────
 	const listViewItems: ReportListItem[] = useMemo(() => {
 		const folderItems: ReportListItem[] = folders.map(f => ({
@@ -99,6 +103,7 @@ export default function App() {
 	const handleCreateFolder = async (name: string, parentId: string, description: string, isPublic: boolean) => {
 		try {
     		await createFolder({ name, parent_folder_id: parentId, description, is_public: isPublic });
+			refreshCounts();
 		} catch (e: any) {
 			errorToast(e?.message || 'Failed to create folder.');
 		}
@@ -107,6 +112,7 @@ export default function App() {
 	const handleCreateReport = async (name: string, parentId: string, description: string, salesforceObjectName: string, serviceNowTableName: string, isPublic: boolean) => {
 		try {
 			const result = await createReport({ name, folderid: parentId, description, salesforceObjectName, serviceNowTableName, isPublic });
+			refreshCounts();
 			rememberListContext();
 			setActiveReportId(result.sys_id);
 			setOpenInRunMode(false);
@@ -120,6 +126,7 @@ export default function App() {
 		if (!editFolderItem) return;
 		try {
 			await updateFolder({ id: editFolderItem.id, name, is_public: isPublic });
+			refreshCounts();
 			successToast('Folder updated successfully.');
 			setEditFolderItem(null);
 		} catch (e: any) {
@@ -140,6 +147,7 @@ export default function App() {
 				serviceNowObject: report?.serviceNowObject,
 				openedAt: new Date().toISOString(),
 			});
+			refreshCounts();   // opening a report changes the Recent list
 			rememberListContext();
 			setActiveTabId(id);
 			setActiveTabName(name);
@@ -158,6 +166,7 @@ export default function App() {
 				await deleteReport(deleteItem.id);
 				successToast('Report deleted successfully.');
 			}
+			refreshCounts();
 			setDeleteItem(null);
 		} catch (e: any) {
 			errorToast(e?.message || 'Failed to delete.');
@@ -185,6 +194,8 @@ export default function App() {
 		setActiveReportId('');
 		setOpenInRunMode(false);
 		refreshFolders();
+		refreshReports();   // name / visibility may have changed in the builder
+		refreshCounts();
 	};
 
 	const handleSaveReportConfig = async (newConfig: any, reportId: string) => {
@@ -196,16 +207,22 @@ export default function App() {
 			columns: JSON.stringify(newConfig.selectedFields),
 			showChart: newConfig.showChart,
 			chartType: newConfig.chartType,
+			chartSeriesBy: newConfig?.chartSeriesBy ?? '',
+			chartTitle: newConfig?.chartTitle ?? '',
+			chartMetric: newConfig?.chartMetric ?? 'count',
+			chartValueField: newConfig?.chartValueField ?? '',
 			groupBy: JSON.stringify(newConfig?.groupBy),
 			showOnlyRecordsWithSalesforce: newConfig?.showOnlyRecordsWithSalesforce,
 			chartGroupBy: newConfig?.chartGroupBy,
 			filterQuery: newConfig?.filterQuery,
 			filterConditions: JSON.stringify(newConfig?.filterConditions ?? []),
-			filterLogic: newConfig?.filterLogic ?? '', 
+			filterLogic: newConfig?.filterLogic ?? '',
+			isPublic: newConfig?.isPublic,
 		};
 		if (!reportId) return;
 		try {
 			await ReportService.updateReportById(reportId, report);
+			refreshCounts();   // visibility change moves the report between Public/Private
 			successToast('Report settings updated successfully.');
 		} catch (e: any) {
 			errorToast(e?.message || 'Failed to save report.');
@@ -222,6 +239,7 @@ export default function App() {
 			successToast('Report moved successfully.');
 			setMoveReportItem(null);
 			refreshReports();
+			refreshCounts();
 		} catch (e: any) {
 			errorToast(e?.message || 'Failed to move report.');
 		}
@@ -238,6 +256,7 @@ export default function App() {
 					{viewMode === 'list' && (
 						<Sidebar
 							activeTabId={activeTabId}
+							counts={counts}
 							onNavigate={(id, name) => handleSidebarNavigate(id, name, true)}
 							onOpenFolderModal={() => setFolderModalOpen(true)}
 						/>
@@ -254,6 +273,7 @@ export default function App() {
 								onRunReport={handleRunReport}
 								onEditReport={handleEditReport}
 								onEditFolder={setEditFolderItem}
+								onFavoritesChange={refreshCounts}
 								onMoveReport={setMoveReportItem}
 								onDeleteItem={setDeleteItem}
 							/>

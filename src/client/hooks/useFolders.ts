@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import folderService from '../services/ServiceNow/folder-service';
 import type { Folder } from '../interfaces';
 import type { CreateFolderDto } from '../services/dtos';
@@ -22,16 +22,22 @@ export function useFolders(params: UseFoldersParams) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Requests started for an older tab must never overwrite newer results
+  const requestIdRef = useRef(0);
+
   const fetchFolders = useCallback(async () => {
+    const requestId = ++requestIdRef.current;
+    const isCurrent = () => requestId === requestIdRef.current;
+
     setLoading(true);
     setError(null);
     try {
       const data = await folderService.getFolders({ type, folderId });
-      setFolders(data);
+      if (isCurrent()) setFolders(data);
     } catch (err: any) {
-      setError(err.message || 'Unknown error');
+      if (isCurrent()) setError(err.message || 'Unknown error');
     } finally {
-      setLoading(false);
+      if (isCurrent()) setLoading(false);
     }
   }, [type, folderId]);
 

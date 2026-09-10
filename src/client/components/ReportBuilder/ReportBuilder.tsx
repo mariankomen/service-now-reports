@@ -4,6 +4,8 @@ import ConfigPanel from './ConfigPanel';
 import ChartPreview from './ChartPreview';
 import DataGrid, { DataRow } from '../DataGrid/DataGrid';
 import type { ChartValueFormat } from '../Charts/chartFormat';
+import type { ChartModel } from '../Charts/ChartRenderer';
+import { isMultiSeriesChart, type ChartType as ChartTypeId } from '../Charts/chartTypes';
 import ChartProperties from './ChartProperties';
 import ReportService from '../../services/ServiceNow/report-service';
 import { sobjectService } from '../../services';
@@ -22,7 +24,12 @@ import {
   normalizeFieldId,
 } from '../../utils/filterBuilder';
 
-export type ChartType = 'donut' | 'bar' | 'line' | 'table';
+export type { ChartType } from '../Charts/chartTypes';
+
+// Labels for the Y-axis metric, also used as the series name of single-series charts
+export const METRIC_LABELS: Record<string, string> = {
+  count: 'Count', sum: 'Sum', avg: 'Average', max: 'Max', min: 'Min',
+};
 
 export type FilterConfig = {
   project: string;
@@ -31,7 +38,9 @@ export type FilterConfig = {
   selectedFields: string[];
   showChart: boolean;
   groupBy: string[];
-  chartType: ChartType;
+  chartType: ChartTypeId;
+  chartSeriesBy?: string;   // "Split by" field for stacked / multi-series charts
+  chartTitle?: string;
   groupRowsBy: string;
   sfObjectName?: string;
   snObjectName?: string;
@@ -45,6 +54,7 @@ export type FilterConfig = {
   owner?: string;
   chartMetric?: 'count' | 'sum' | 'avg' | 'max' | 'min';
   chartValueField?: string;
+  isPublic?: boolean;
   [key: string]: any;
 };
 
@@ -88,9 +98,12 @@ const defaultFiltersBase: FilterConfig = {
   showOnlyRecordsWithSalesforce: false,
   folderId: null,
   chartGroupBy: 'SF.Id',
+  chartSeriesBy: '',
+  chartTitle: '',
   description: '',
   createdDate: '',
   owner: '',
+  isPublic: false,
 };
 
 const PAGE_SIZE = 200;
@@ -152,6 +165,11 @@ const ReportBuilder: React.FC<ReportBuilderProps> = ({ reportId, onBack, onSave,
           showOnlyRecordsWithSalesforce: report.showOnlyRecordsWithSalesforce,
           folderId:                     report.folderId,
           chartGroupBy:                 report.chartGroupBy,
+          chartType:                    (report.chartType as ChartTypeId) || 'bar',
+          chartSeriesBy:                report.chartSeriesBy ?? '',
+          chartTitle:                   report.chartTitle ?? '',
+          chartMetric:                  (report.chartMetric as FilterConfig['chartMetric']) || 'count',
+          chartValueField:              report.chartValueField ?? '',
           // Recompute the encoded query from the saved conditions — the stored
           // filter_query may be stale (e.g. contain SF fields from older versions)
           filterQuery:                  savedConditions.length ? buildEncodedQuery(savedConditions, savedLogic) : '',
@@ -160,7 +178,8 @@ const ReportBuilder: React.FC<ReportBuilderProps> = ({ reportId, onBack, onSave,
           description:                  report.description ?? '',
           createdDate:                  report.createdDate ?? '',
           owner:                        report.ownerName ?? '',
-          showChart:                    report.showChart ?? false
+          showChart:                    report.showChart ?? false,
+          isPublic:                     report.isPublic ?? false
         };
 
         setFilters(loaded);
@@ -425,44 +444,70 @@ const ReportBuilder: React.FC<ReportBuilderProps> = ({ reportId, onBack, onSave,
     }));
   };
 
-  const chartData = useMemo(() => {
-    if (!rawData.length) return [];
+  // ─── Chart model ──────────────────────────────────────────────────────────
+  // Categories come from the X-axis field. Multi-series charts additionally
+  // split every category by the "Split by" field, producing one series each.
+  const chartModel = useMemo<ChartModel>(() => {
+    const empty: ChartModel = { categories: [], series: [] };
+    if (!rawData.length) return empty;
+
     const groupField = filters.chartGroupBy;
-    if (!groupField) return [];
+    if (!groupField) return empty;
 
-    const metric     = (filters.chartMetric as string) || 'count';
-    const valueField = filters.chartValueField ?? '';
-    const needsField = metric !== 'count';
+    const metric      = (filters.chartMetric as string) || 'count';
+    const valueField  = filters.chartValueField ?? '';
+    const needsField  = metric !== 'count';
+    const splitField  = isMultiSeriesChart(filters.chartType) ? (filters.chartSeriesBy ?? '') : '';
+    const metricLabel = METRIC_LABELS[metric] ?? 'Count';
 
-    // ─── Group rows by the X-axis field ──────────────────────────────────────
-    const groups: Record<string, number[]> = {};
+    const categories: string[] = [];
+    const seriesNames: string[] = [];
+    const buckets: Record<string, Record<string, number[]>> = {};   // series -> category -> values
+
     rawData.forEach(item => {
-      const key = String(item[groupField] ?? '(Blank)');
-      if (!groups[key]) groups[key] = [];
+      const category = String(item[groupField] ?? '(Blank)');
+      const series   = splitField ? String(item[splitField] ?? '(Blank)') : metricLabel;
+
+      if (!categories.includes(category)) categories.push(category);
+      if (!seriesNames.includes(series)) seriesNames.push(series);
+
+      if (!buckets[series]) buckets[series] = {};
+      if (!buckets[series][category]) buckets[series][category] = [];
+
       if (needsField && valueField) {
         const num = parseFloat(item[valueField]);
-        if (!isNaN(num)) groups[key].push(num);
+        if (!isNaN(num)) buckets[series][category].push(num);
       } else {
-        groups[key].push(1); // count
+        buckets[series][category].push(1); // count
       }
     });
 
-    // ─── Aggregate per group ──────────────────────────────────────────────────
-    return Object.entries(groups).map(([name, values]) => {
+    const aggregate = (values: number[]): number => {
+      if (!values.length) return 0;
       let value = 0;
-      if (metric === 'count')  value = values.length;
-      if (metric === 'sum')    value = values.reduce((a, b) => a + b, 0);
-      if (metric === 'avg')    value = values.length ? values.reduce((a, b) => a + b, 0) / values.length : 0;
-      if (metric === 'max')    value = Math.max(...values);
-      if (metric === 'min')    value = Math.min(...values);
-      return { name, value: Math.round(value * 100) / 100 };
-    });
-  }, [rawData, filters.chartGroupBy, filters.chartMetric, filters.chartValueField]);
+      if (metric === 'count') value = values.length;
+      if (metric === 'sum')   value = values.reduce((a, b) => a + b, 0);
+      if (metric === 'avg')   value = values.reduce((a, b) => a + b, 0) / values.length;
+      if (metric === 'max')   value = Math.max.apply(null, values);
+      if (metric === 'min')   value = Math.min.apply(null, values);
+      return Math.round(value * 100) / 100;
+    };
+
+    return {
+      categories,
+      series: seriesNames.map(name => ({
+        name,
+        data: categories.map(category => aggregate(buckets[name]?.[category] ?? [])),
+      })),
+    };
+  }, [
+    rawData, filters.chartGroupBy, filters.chartSeriesBy,
+    filters.chartMetric, filters.chartValueField, filters.chartType,
+  ]);
 
   const readonly = isViewer(userRole);
 
-  const metricLabel: Record<string, string> = { count: 'Count', sum: 'Sum', avg: 'Average', max: 'Max', min: 'Min' };
-  const seriesName  = metricLabel[(filters.chartMetric as string) ?? 'count'] ?? 'Count';
+  const seriesName  = METRIC_LABELS[(filters.chartMetric as string) ?? 'count'] ?? 'Count';
   const valueLabel  = allFields.find(f => f.id === filters.chartValueField)?.label ?? '';
   const yAxisLabel  = filters.chartMetric === 'count' ? 'Count' : `${seriesName}${valueLabel ? ` of ${valueLabel}` : ''}`;
 
@@ -610,9 +655,10 @@ const ReportBuilder: React.FC<ReportBuilderProps> = ({ reportId, onBack, onSave,
               <div style={cardHeaderStyle}><span>Chart Preview</span></div>
               <div style={{ width: '100%', height: '300px', minWidth: 0, position: 'relative' }}>
                 <ChartPreview
-                  data={chartData}
+                  model={chartModel}
                   loading={loading}
                   chartType={filters.chartType}
+                  title={filters.chartTitle}
                   seriesName={seriesName}
                   yAxisLabel={yAxisLabel}
                   valueFormat={chartValueFormat}

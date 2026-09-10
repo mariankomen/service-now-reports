@@ -36,11 +36,19 @@
         if (body.groupBy)         gr.group_by         = body.groupBy;
         if (body.filterQuery !== undefined) gr.filter_query = body.filterQuery; // allow clearing a stale query
         if (body.chartGroupBy)    gr.chart_group_by   = body.chartGroupBy;
+        // Chart settings can be cleared, so an empty string must still be stored
+        if (body.chartSeriesBy   !== undefined) gr.chart_series_by   = body.chartSeriesBy;
+        if (body.chartTitle      !== undefined) gr.chart_title       = body.chartTitle;
+        if (body.chartMetric     !== undefined) gr.chart_metric      = body.chartMetric;
+        if (body.chartValueField !== undefined) gr.chart_value_field = body.chartValueField;
         if (body.folderid)        gr.folderid         = body.folderid;
         if (body.filterConditions) gr.filter_conditions = body.filterConditions;
         if (body.filterLogic !== undefined) gr.filter_logic = body.filterLogic;
 
         // ─── Handle boolean fields explicitly ─────────────────────────────────
+        if (body.isPublic != null) {
+            gr.is_public = (body.isPublic === true || body.isPublic === 'true') ? '1' : '0';
+        }
         if (body.showChart != null) gr.show_chart = body.showChart ? '1' : '0';
         if (body.showOnlyRecordsWithSalesforce != null) {
             gr.show_only_with_sf_records = body.showOnlyRecordsWithSalesforce ? '1' : '0';

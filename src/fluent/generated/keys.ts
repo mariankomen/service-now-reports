@@ -222,6 +222,10 @@ declare global {
                         table: 'sys_script_include'
                         id: '94e3477bf8f44c0fba657ad59156f917'
                     }
+                    sidebar_counts_get_route: {
+                        table: 'sys_ws_operation'
+                        id: '41e27da3bd7e4f4887ce0374b8009a60'
+                    }
                     'src_server_auth-credentials-post_js': {
                         table: 'sys_module'
                         id: 'd393c6dcd23e42f3ae0df099aa4f1ce2'
@@ -344,6 +348,10 @@ declare global {
                         table: 'sys_module'
                         id: 'd6b8db40e86b4f608a4d715f9b1f8a9c'
                     }
+                    'src_server_sidebar-counts-get_js': {
+                        table: 'sys_module'
+                        id: '8336121594174c329d831ebd86711005'
+                    }
                     'src_server_users-search-get_js': {
                         table: 'sys_module'
                         id: 'f2de94b3966f4841bd7a8f4ecbf52e98'
@@ -401,6 +409,14 @@ declare global {
                     }
                 }
                 composite: [
+                    {
+                        table: 'sys_dictionary'
+                        id: '0070097d1705499dad80153fa3467b8f'
+                        key: {
+                            name: 'x_1955226_connecto_report'
+                            element: 'chart_series_by'
+                        }
+                    },
                     {
                         table: 'sys_security_acl_role'
                         id: '04e491d8f88f4e48b268d8069f421765'
@@ -563,6 +579,14 @@ declare global {
                         key: {
                             name: 'x_1955226_connecto_connection'
                             element: 'client_secret'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
+                        id: '2788dc3cefbe4bd3b17fdc631ceab29b'
+                        key: {
+                            name: 'x_1955226_connecto_report'
+                            element: 'chart_value_field'
                         }
                     },
                     {
@@ -915,6 +939,14 @@ declare global {
                     },
                     {
                         table: 'sys_dictionary'
+                        id: '622553fa8ece4f489aea05217e12354e'
+                        key: {
+                            name: 'x_1955226_connecto_report'
+                            element: 'chart_title'
+                        }
+                    },
+                    {
+                        table: 'sys_dictionary'
                         id: '62504d99bcbb469583b72a0b575930b4'
                         key: {
                             name: 'x_1955226_connecto_share'
@@ -973,6 +1005,15 @@ declare global {
                         id: '70063954d9224b6bb28928e2a73fc0c1'
                         key: {
                             name: 'x_1955226_connecto/purify.es'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: '7020efa0dedd4a57848a960f0b5de680'
+                        key: {
+                            name: 'x_1955226_connecto_report'
+                            element: 'chart_value_field'
+                            language: 'en'
                         }
                     },
                     {
@@ -1092,6 +1133,15 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_documentation'
+                        id: '884ecb8bd80841898f7a85b4f8ad6952'
+                        key: {
+                            name: 'x_1955226_connecto_report'
+                            element: 'chart_metric'
+                            language: 'en'
+                        }
+                    },
+                    {
                         table: 'sys_ux_lib_asset'
                         id: '89517da4e76e4013a54e13c68a0f7b4a'
                         key: {
@@ -1134,11 +1184,28 @@ declare global {
                         }
                     },
                     {
+                        table: 'sys_dictionary'
+                        id: '93b27fc3a1cd4abd827113a54e36ea4f'
+                        key: {
+                            name: 'x_1955226_connecto_report'
+                            element: 'chart_metric'
+                        }
+                    },
+                    {
                         table: 'sys_documentation'
                         id: '94de7455edff46fb85ebffd1d69a88c5'
                         key: {
                             name: 'x_1955226_connecto_report'
                             element: 'columns'
+                            language: 'en'
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: '9637e61033a840b19407430c9e5c4d2c'
+                        key: {
+                            name: 'x_1955226_connecto_report'
+                            element: 'chart_title'
                             language: 'en'
                         }
                     },
@@ -1449,6 +1516,15 @@ declare global {
                                     name: 'x_1955226_connecto.peeklogic_reports_user'
                                 }
                             }
+                        }
+                    },
+                    {
+                        table: 'sys_documentation'
+                        id: 'deefe09994ad4ba1bb40d4bc21ebdc67'
+                        key: {
+                            name: 'x_1955226_connecto_report'
+                            element: 'chart_series_by'
+                            language: 'en'
                         }
                     },
                     {
