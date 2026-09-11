@@ -42,6 +42,24 @@ SalesforceAuthService.prototype = {
         }
     },
 
+    // ─── Stored access token, without the validation round trip ──────────────
+    // For latency-sensitive callers that fall back to getAccessToken() on HTTP 401
+    getStoredToken: function() {
+        try {
+            var connection = this._getConnection();
+            if (!connection.success || !connection.data.accessToken) {
+                return { success: false, token: '', baseUrl: '' };
+            }
+            return {
+                success: true,
+                token:   connection.data.accessToken,
+                baseUrl: connection.data.instanceUrl || connection.data.baseUrl
+            };
+        } catch (e) {
+            return { success: false, token: '', baseUrl: '' };
+        }
+    },
+
     // ─── Validate token with a lightweight Salesforce API call ────────────────
     // Uses /limits endpoint — fast, no business data fetched
     _validateToken: function(token, baseUrl) {

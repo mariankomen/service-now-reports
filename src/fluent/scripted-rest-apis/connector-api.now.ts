@@ -105,6 +105,14 @@ RestApi({
             enforceAcl: [salesforceIntegrationRestEndpointAcl]
         },
         {
+            $id: Now.ID['sf_reference_search_get_route'],
+            path: '/salesforce/reference/search',
+            method: 'GET',
+            script: Now.include('../../server/salesforce-reference-search-get.js'),
+            shortDescription: 'SF Reference Search GET',
+            enforceAcl: [salesforceIntegrationRestEndpointAcl]
+        },
+        {
             $id: Now.ID['sidebar_counts_get_route'],
             path: '/counts',
             method: 'GET',

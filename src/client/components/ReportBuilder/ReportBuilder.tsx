@@ -261,6 +261,7 @@ const ReportBuilder: React.FC<ReportBuilderProps> = ({ reportId, onBack, onSave,
               id: `SF.${rel}.${f.apiname}`,
               label: `${objLabel}: ${f.label}`,
               type: f.type,
+              referenceTo: f.referenceTo ?? [],
             }));
           } catch {
             // label falls back to the raw field id

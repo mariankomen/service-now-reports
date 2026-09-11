@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import tableService, { type ReferenceRecord } from '../../services/ServiceNow/table-service';
+import tableService from '../../services/ServiceNow/table-service';
+import { sobjectService } from '../../services/Salesforce';
 import {
   type FilterCondition,
   type FilterFieldMeta,
@@ -13,6 +14,47 @@ interface FilterValueInputProps {
   onChange: (patch: Partial<FilterCondition>) => void;
   style: React.CSSProperties;
 }
+
+// Waits for the user to pause typing so intermediate keystrokes do not trigger requests
+const SEARCH_DEBOUNCE_MS = 1000;
+
+// ─── Reference sources ────────────────────────────────────────────────────────
+// ServiceNow references and Salesforce lookups share one picker; only the way
+// records are searched and labelled differs
+
+type PickerRecord = {
+  id: string;      // ServiceNow sys_id or Salesforce record Id
+  label: string;
+};
+
+type ReferenceSource = {
+  key: string;
+  search: (term: string) => Promise<PickerRecord[]>;
+  resolveLabel: (id: string) => Promise<string>;
+};
+
+const buildReferenceSource = (field?: FilterFieldMeta): ReferenceSource | null => {
+  const table = field?.referenceTable;
+  if (table) {
+    return {
+      key: `sn:${table}`,
+      search: term => tableService.searchReferenceRecords(table, term)
+        .then(found => found.map(r => ({ id: r.sys_id, label: r.label }))),
+      resolveLabel: id => tableService.getReferenceRecordLabel(table, id),
+    };
+  }
+
+  const objects = field?.referenceTo ?? [];
+  if (objects.length) {
+    return {
+      key: `sf:${objects.join(',')}`,
+      search: term => sobjectService.searchReferenceRecords(objects, term),
+      resolveLabel: id => sobjectService.getReferenceRecordLabel(objects, id),
+    };
+  }
+
+  return null;
+};
 
 const FilterValueInput: React.FC<FilterValueInputProps> = ({ kind, field, condition, onChange, style }) => {
 
@@ -37,14 +79,17 @@ const FilterValueInput: React.FC<FilterValueInputProps> = ({ kind, field, condit
 
   // ─── Reference record picker ───────────────────────────────────────────────
   if (kind === 'reference') {
-    return (
-      <ReferencePicker
-        table={field?.referenceTable ?? ''}
-        condition={condition}
-        onChange={onChange}
-        style={style}
-      />
-    );
+    const source = buildReferenceSource(field);
+    if (source) {
+      return (
+        <ReferencePicker
+          source={source}
+          condition={condition}
+          onChange={onChange}
+          style={style}
+        />
+      );
+    }
   }
 
   // ─── Typed native inputs ───────────────────────────────────────────────────
@@ -66,64 +111,73 @@ const FilterValueInput: React.FC<FilterValueInputProps> = ({ kind, field, condit
 };
 
 // ─── Reference picker ────────────────────────────────────────────────────────
-// Searches the referenced table and stores the sys_id as the value, keeping the
-// record name as displayValue so client-side filtering can match display values
+// Stores the record id as the value and keeps the record name as displayValue,
+// so the query uses the id while client-side filtering can match either
 
 interface ReferencePickerProps {
-  table: string;
+  source: ReferenceSource;
   condition: FilterCondition;
   onChange: (patch: Partial<FilterCondition>) => void;
   style: React.CSSProperties;
 }
 
-const ReferencePicker: React.FC<ReferencePickerProps> = ({ table, condition, onChange, style }) => {
+const ReferencePicker: React.FC<ReferencePickerProps> = ({ source, condition, onChange, style }) => {
   const [term, setTerm]         = useState('');
-  const [records, setRecords]   = useState<ReferenceRecord[]>([]);
+  const [records, setRecords]   = useState<PickerRecord[]>([]);
   const [isOpen, setIsOpen]     = useState(false);
   const [loading, setLoading]   = useState(false);
 
   const blurTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const labelLoaded = useRef('');
 
-  // ─── Resolve the label of an already saved sys_id ────────────────────────
+  // The source object is rebuilt on every render; effects key off `source.key`
+  const sourceRef = useRef(source);
+  sourceRef.current = source;
+
+  // ─── Resolve the label of an already saved id ────────────────────────────
   useEffect(() => {
-    if (!table || !condition.value || condition.displayValue) return;
+    if (!condition.value || condition.displayValue) return;
     if (labelLoaded.current === condition.value) return;
     labelLoaded.current = condition.value;
 
     let cancelled = false;
-    tableService.getReferenceRecordLabel(table, condition.value).then(label => {
+    sourceRef.current.resolveLabel(condition.value).then(label => {
       if (!cancelled && label) onChange({ displayValue: label });
     });
     return () => { cancelled = true; };
-  }, [table, condition.value, condition.displayValue]);
+  }, [source.key, condition.value, condition.displayValue]);
+
+  const trimmedTerm = term.trim();
 
   // ─── Debounced search while the dropdown is open ─────────────────────────
   useEffect(() => {
-    if (!isOpen || !table) return;
+    if (!isOpen) return;
 
     let cancelled = false;
     setLoading(true);
+    // The initial list on opening loads right away — only typing is debounced
     const timeout = setTimeout(() => {
-      tableService.searchReferenceRecords(table, term)
+      sourceRef.current.search(trimmedTerm)
         .then(found => { if (!cancelled) setRecords(found); })
         .catch(() => { if (!cancelled) setRecords([]); })
         .finally(() => { if (!cancelled) setLoading(false); });
-    }, 250);
+    }, trimmedTerm ? SEARCH_DEBOUNCE_MS : 0);
 
     return () => { cancelled = true; clearTimeout(timeout); };
-  }, [term, isOpen, table]);
+  }, [trimmedTerm, isOpen, source.key]);
 
   useEffect(() => () => { if (blurTimeout.current) clearTimeout(blurTimeout.current); }, []);
 
-  const selectRecord = (record: ReferenceRecord) => {
-    labelLoaded.current = record.sys_id;
-    onChange({ value: record.sys_id, displayValue: record.label });
+  const selectRecord = (record: PickerRecord) => {
+    labelLoaded.current = record.id;
+    onChange({ value: record.id, displayValue: record.label });
     setTerm('');
     setIsOpen(false);
   };
 
-  const shownValue = isOpen ? term : (condition.displayValue || condition.value || '');
+  // The raw id is never shown — while a saved record's name loads, a placeholder stands in
+  const shownValue  = isOpen ? term : (condition.displayValue || '');
+  const placeholder = !isOpen && condition.value && !condition.displayValue ? 'Loading…' : 'Search record...';
 
   return (
     <div style={{ position: 'relative', flex: 1, minWidth: 120 }}>
@@ -155,7 +209,7 @@ const ReferencePicker: React.FC<ReferencePickerProps> = ({ table, condition, onC
           {!loading && records.length === 0 && <div style={dropdownHintStyle}>No records found</div>}
           {!loading && records.map(record => (
             <div
-              key={record.sys_id}
+              key={record.id}
               onMouseDown={e => { e.preventDefault(); selectRecord(record); }}
               style={dropdownItemStyle}
               onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = '#F4F5F7'; }}

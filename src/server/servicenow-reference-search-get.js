@@ -84,7 +84,7 @@
         }
         if (displayElement) gr.orderBy(displayElement);
 
-        gr.setLimit(20);
+        gr.setLimit(10);
         gr.query();
 
         var records = [];

@@ -71,6 +71,7 @@ const FieldsSidebar: React.FC<FieldsSidebarProps> = ({ availableFields, selected
               id: `SF.${relationshipName}.${childField.apiname}`,
               label: `${objLabel}: ${childField.label}`,
               type: childField.type,
+              referenceTo: childField.referenceTo ?? [],
             });
           }
         }

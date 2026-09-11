@@ -202,6 +202,10 @@ declare global {
                         table: 'sys_ws_operation'
                         id: 'f4a616e3cd634cb58f12ab62f46f98c7'
                     }
+                    sf_reference_search_get_route: {
+                        table: 'sys_ws_operation'
+                        id: '6fb1fd97de6d40ea8e68d37b52005bba'
+                    }
                     share_delete_route: {
                         table: 'sys_ws_operation'
                         id: 'fa57dac9f2164c63845ae0cc76829234'
@@ -311,6 +315,10 @@ declare global {
                     'src_server_salesforce-object-fields-get_js': {
                         table: 'sys_module'
                         id: 'e20770193a654daf965c5f5b53809110'
+                    }
+                    'src_server_salesforce-reference-search-get_js': {
+                        table: 'sys_module'
+                        id: '7d68a5d253134d22b454b9e24099e407'
                     }
                     'src_server_service-now-tables-get_js': {
                         table: 'sys_module'

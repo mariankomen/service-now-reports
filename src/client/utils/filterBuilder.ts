@@ -13,7 +13,8 @@ export type FilterFieldMeta = {
   id?: string;
   type?: string;
   choices?: { label: string; value: string }[];
-  referenceTable?: string;
+  referenceTable?: string;   // ServiceNow reference target table
+  referenceTo?: string[];    // Salesforce lookup target objects
 };
 
 // ─── Field id helpers ─────────────────────────────────────────────────────────
@@ -33,6 +34,10 @@ export const findField = (
   field: string
 ): FilterFieldMeta | undefined =>
   fields?.find(f => f.id === normalizeFieldId(field));
+
+// A record picker applies to ServiceNow references and Salesforce lookups alike
+export const isReferenceField = (field: FilterFieldMeta | undefined): boolean =>
+  !!field?.referenceTable || (field?.type === 'reference' && !!field?.referenceTo?.length);
 
 // ─── Field type groups ────────────────────────────────────────────────────────
 
@@ -142,7 +147,7 @@ export const getOperatorsForField = (
   field: FilterFieldMeta | undefined
 ): { label: string; value: string }[] => {
   if (field?.choices?.length) return choiceOps;
-  if (field?.referenceTable)  return choiceOps;
+  if (isReferenceField(field)) return choiceOps;
   return getOperatorsForType(field?.type ?? 'string');
 };
 
@@ -164,7 +169,7 @@ export const getInputKind = (
 ): FilterInputKind => {
   if (isEmptyOperator(operator) || isBooleanOperator(operator)) return 'none';
   if (field?.choices?.length) return 'choice';
-  if (field?.referenceTable)  return 'reference';
+  if (isReferenceField(field)) return 'reference';
 
   const type = field?.type ?? 'string';
   if (isNumericType(type))  return 'number';
