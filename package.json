@@ -1,5 +1,5 @@
 {
-  "name": "x-1955226-connector",
+  "name": "x-peekl-snreports",
   "version": "1.0.0",
   "description": "connector",
   "license": "UNLICENSED",
@@ -21,10 +21,8 @@
   },
   "dependencies": {
     "@hello-pangea/dnd": "^18.0.1",
-    "@highcharts/react": "^5.0.1",
     "@uiw/react-textarea-code-editor": "^3.1.1",
     "axios": "^1.14.0",
-    "highcharts-react-official": "^3.2.3",
     "html2canvas": "^1.4.1",
     "i": "^0.3.7",
     "jspdf": "^4.2.1",

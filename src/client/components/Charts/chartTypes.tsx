@@ -8,7 +8,7 @@ export type ChartType =
 export type ChartTypeDef = {
   id: ChartType;
   label: string;
-  seriesType: string;      // Highcharts series type
+  seriesType: string;      // chart family drawn by ChartRenderer
   stacked?: boolean;       // series stack on top of each other
   multiSeries?: boolean;   // needs a "Split by" field to produce several series
   categorical?: boolean;   // uses an x-axis with categories

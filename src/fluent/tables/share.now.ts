@@ -1,8 +1,8 @@
 import '@servicenow/sdk/global'
 import { Table, StringColumn, ReferenceColumn } from '@servicenow/sdk/core'
 
-export const x_1955226_connecto_share = Table({
-    name: 'x_1955226_connecto_share',
+export const x_peekl_snreports_share = Table({
+    name: 'x_peekl_snreports_share',
     label: 'Share',
     schema: {
         item_id: StringColumn({

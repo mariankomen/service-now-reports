@@ -1,8 +1,8 @@
 import '@servicenow/sdk/global'
 import { Table, StringColumn, BooleanColumn, ReferenceColumn, ListColumn } from '@servicenow/sdk/core'
 
-export const x_1955226_connecto_report = Table({
-    name: 'x_1955226_connecto_report',
+export const x_peekl_snreports_report = Table({
+    name: 'x_peekl_snreports_report',
     label: 'Report',
     schema: {
         chart_group_by: StringColumn({

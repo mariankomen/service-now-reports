@@ -1,7 +1,7 @@
 (function process(request, response) {
     try {
         // ─── Get current user's access token ─────────────────────────────────
-        var authService  = new x_1955226_connecto.SalesforceAuthService();
+        var authService  = new x_peekl_snreports.SalesforceAuthService();
         var tokenResult  = authService.getAccessToken();
 
         if (!tokenResult.success || !tokenResult.token) {
@@ -19,7 +19,8 @@
         req.setRequestHeader('Authorization', 'Bearer ' + tokenResult.token);
         req.setRequestHeader('Accept', 'application/json');
 
-        var res    = req.execute();
+        var res    = req.executeAsync();
+        res.waitForResponse(60);
         var status = res.getStatusCode();
         var body   = res.getBody();
 

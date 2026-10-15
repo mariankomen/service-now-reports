@@ -10,7 +10,7 @@
         }
 
         // ─── Create folder record ─────────────────────────────────────────────
-        var gr = new GlideRecordSecure('x_1955226_connecto_folder');
+        var gr = new GlideRecordSecure('x_peekl_snreports_folder');
         gr.initialize();
         gr.name             = body.name;
         gr.description      = body.description      || '';

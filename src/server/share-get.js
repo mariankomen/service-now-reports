@@ -10,7 +10,7 @@
         }
 
         // ─── Check access — viewer role required to see shares ────────────────
-        var access = new x_1955226_connecto.AccessService();
+        var access = new x_peekl_snreports.AccessService();
         var role = access.getRole(itemId, itemType);
         gs.info('share-get: itemId=' + itemId + ' itemType=' + itemType + ' role=' + role);
         if (!access.canAccess(itemId, itemType, 'viewer')) {
@@ -20,7 +20,7 @@
         }
 
         // ─── Fetch share records ──────────────────────────────────────────────
-        var gr = new GlideRecordSecure('x_1955226_connecto_share');
+        var gr = new GlideRecordSecure('x_peekl_snreports_share');
         gr.addQuery('item_id', itemId);
         gr.addQuery('item_type', itemType);
         gr.query();

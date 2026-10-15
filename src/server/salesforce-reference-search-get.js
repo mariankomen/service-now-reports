@@ -27,7 +27,7 @@
         var MAX_RESULTS = 10;
 
         // ─── Token: skip the per-call validation, recover on 401 instead ──────
-        var auth = new x_1955226_connecto.SalesforceAuthService();
+        var auth = new x_peekl_snreports.SalesforceAuthService();
         var tokenResult = auth.getStoredToken();
         if (!tokenResult.success) tokenResult = auth.getAccessToken();
         if (!tokenResult.success || !tokenResult.token) {
@@ -47,7 +47,8 @@
             req.setRequestHeader('Accept', 'application/json');
             req.setRequestBody(payload);
 
-            var res  = req.execute();
+            var res  = req.executeAsync();
+            res.waitForResponse(60);
             var body = null;
             try { body = JSON.parse(res.getBody()); } catch (parseErr) { body = null; }
             return { status: res.getStatusCode(), body: body };
@@ -80,7 +81,7 @@
 
         function readMeta(name) {
             try {
-                var raw = session.getClientData('x_1955226_connecto.sfmeta.' + name);
+                var raw = session.getClientData('x_peekl_snreports.sfmeta.' + name);
                 return raw ? JSON.parse(raw) : null;
             } catch (cacheErr) {
                 return null;
@@ -89,7 +90,7 @@
 
         function writeMeta(name, meta) {
             try {
-                session.putClientData('x_1955226_connecto.sfmeta.' + name, JSON.stringify(meta));
+                session.putClientData('x_peekl_snreports.sfmeta.' + name, JSON.stringify(meta));
             } catch (cacheErr) {
                 // Caching is an optimisation only
             }

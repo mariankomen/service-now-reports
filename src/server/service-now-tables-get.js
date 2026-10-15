@@ -7,7 +7,7 @@
             'x_snc_', 'oauth_', 'sp_', 'sn_hr_', 'sn_esig_'
         ];
 
-        var gr = new GlideRecord('sys_db_object');
+        var gr = new GlideRecordSecure('sys_db_object');
         gr.addQuery('name', 'NOT LIKE', 'sys_%');
         gr.orderBy('label');
         gr.query();

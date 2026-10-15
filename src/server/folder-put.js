@@ -9,7 +9,7 @@
         }
 
         // ─── Check access — editor role required to update ────────────────────
-        var access = new x_1955226_connecto.AccessService();
+        var access = new x_peekl_snreports.AccessService();
         if (!access.canAccess(body.id, 'folder', 'editor')) {
             response.setStatus(403);
             response.setBody({ success: false, error: 'Access denied. Editor role required.' });
@@ -17,7 +17,7 @@
         }
 
         // ─── Find folder record ───────────────────────────────────────────────
-        var gr = new GlideRecordSecure('x_1955226_connecto_folder');
+        var gr = new GlideRecordSecure('x_peekl_snreports_folder');
         gr.addQuery('sys_id', body.id);
         gr.setLimit(1);
         gr.query();

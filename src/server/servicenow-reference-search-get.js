@@ -14,45 +14,13 @@
             return;
         }
 
-        // ─── Guard against unknown tables before touching GlideRecord ─────────
-        var tableGr = new GlideRecord('sys_db_object');
-        tableGr.addQuery('name', table);
-        tableGr.setLimit(1);
-        tableGr.query();
-        if (!tableGr.next()) {
+        // ─── Guard against unknown tables before querying ─────────────────────
+        var gr = new GlideRecordSecure(table);
+        if (!gr.isValid()) {
             response.setStatus(404);
             response.setBody({ success: false, error: 'Table ' + table + ' not found.' });
             return;
         }
-
-        // ─── Find the display element, walking up the table hierarchy ────────
-        function getDisplayElement(startTable) {
-            var current = startTable;
-            for (var depth = 0; current && depth < 10; depth++) {
-                var dict = new GlideRecord('sys_dictionary');
-                dict.addQuery('name', current);
-                dict.addQuery('display', true);
-                dict.setLimit(1);
-                dict.query();
-                if (dict.next()) return dict.getValue('element');
-
-                var obj = new GlideRecord('sys_db_object');
-                obj.addQuery('name', current);
-                obj.setLimit(1);
-                obj.query();
-                if (!obj.next()) return '';
-
-                var superId = obj.getValue('super_class');
-                if (!superId) return '';
-
-                var parent = new GlideRecord('sys_db_object');
-                if (!parent.get(superId)) return '';
-                current = parent.getValue('name');
-            }
-            return '';
-        }
-
-        var gr = new GlideRecordSecure(table);
 
         // ─── Resolve a single record — used to label an already saved value ──
         if (sysId) {
@@ -69,8 +37,9 @@
             return;
         }
 
-        // ─── Search by display value ─────────────────────────────────────────
-        var displayElement = getDisplayElement(table);
+        // ─── Search by display value (display field is resolved through the
+        //     table hierarchy by the platform) ────────────────────────────────
+        var displayElement = gr.getDisplayName();
         if (!displayElement) {
             try {
                 if (gr.isValidField('name')) displayElement = 'name';

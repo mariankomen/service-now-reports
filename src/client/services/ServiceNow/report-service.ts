@@ -31,7 +31,7 @@ class ReportService {
     'X-UserToken': (window as any).g_ck || '',
   });
 
-  private baseUrl      = '/api/x_1955226_connecto/x_1955226_connecto_connector_api';
+  private baseUrl      = '/api/x_peekl_snreports/x_peekl_snreports_connector_api';
   private reportUrl    = `${this.baseUrl}/report`;
   private reportsUrl   = `${this.baseUrl}/reports`;
   private dataUrl      = `${this.baseUrl}/report/data`;

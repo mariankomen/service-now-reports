@@ -12,7 +12,7 @@
         var reportId = body.reportId;
 
         // ─── Find existing prefs record for current user ──────────────────────
-        var gr = new GlideRecordSecure('x_1955226_connecto_user_prefs');
+        var gr = new GlideRecordSecure('x_peekl_snreports_user_prefs');
         gr.addQuery('user_id', userId);
         gr.setLimit(1);
         gr.query();

@@ -8,13 +8,13 @@ AccessService.prototype = {
     getRole: function(itemId, itemType) {
         var itemTypeStr = '' + itemType;
         var table = itemTypeStr === 'report'
-            ? 'x_1955226_connecto_report'
-            : 'x_1955226_connecto_folder';
+            ? 'x_peekl_snreports_report'
+            : 'x_peekl_snreports_folder';
 
         gs.info('AccessService.getRole: START itemId=' + itemId + ' itemType=' + itemType + ' userId=' + this.userId);
 
         // ─── Load item ────────────────────────────────────────────────────────
-        var item = new GlideRecord(table);
+        var item = new GlideRecordSecure(table);
         item.addQuery('sys_id', itemId);
         item.setLimit(1);
         item.query();
@@ -62,7 +62,7 @@ AccessService.prototype = {
 
     _getShareRole: function(itemId, itemType) {
         gs.info('AccessService._getShareRole: itemId=' + itemId + ' itemType=' + itemType + ' userId=' + this.userId);
-        var share = new GlideRecord('x_1955226_connecto_share');
+        var share = new GlideRecordSecure('x_peekl_snreports_share');
         share.addQuery('item_id', itemId);
         share.addQuery('item_type', itemType);
         share.addQuery('user_id', this.userId);
@@ -79,7 +79,7 @@ AccessService.prototype = {
         if (folderRole) return folderRole;
 
         // ─── Check folder ownership and public ────────────────────────────────
-        var folder = new GlideRecord('x_1955226_connecto_folder');
+        var folder = new GlideRecordSecure('x_peekl_snreports_folder');
         folder.addQuery('sys_id', folderId);
         folder.setLimit(1);
         folder.query();

@@ -1,18 +1,18 @@
 (function process(request, response) {
     try {
         var userId = gs.getUserID();
-        var access = new x_1955226_connecto.AccessService();
+        var access = new x_peekl_snreports.AccessService();
 
         // ─── Queries mirror reports-get.js / folder-get.js so the badges ──────
         // always agree with what the corresponding list actually shows
         function reportGr() {
-            var gr = new GlideRecordSecure('x_1955226_connecto_report');
+            var gr = new GlideRecordSecure('x_peekl_snreports_report');
             gr.addActiveQuery();
             return gr;
         }
 
         function folderGr() {
-            var gr = new GlideRecordSecure('x_1955226_connecto_folder');
+            var gr = new GlideRecordSecure('x_peekl_snreports_folder');
             gr.addActiveQuery();
             return gr;
         }
@@ -29,7 +29,7 @@
 
         function sharedItemIds(itemType) {
             var ids = [];
-            var shareGR = new GlideRecordSecure('x_1955226_connecto_share');
+            var shareGR = new GlideRecordSecure('x_peekl_snreports_share');
             shareGR.addQuery('item_type', itemType);
             shareGR.addQuery('user_id', userId);
             shareGR.query();
@@ -83,7 +83,7 @@
 
         // ─── Favorites ───────────────────────────────────────────────────────
         var favoriteIds = [];
-        var prefsGR = new GlideRecordSecure('x_1955226_connecto_user_prefs');
+        var prefsGR = new GlideRecordSecure('x_peekl_snreports_user_prefs');
         prefsGR.addQuery('user_id', userId);
         prefsGR.setLimit(1);
         prefsGR.query();

@@ -9,7 +9,7 @@ const aclRoles = [peeklogicReportsUserRole]
 Acl({
     $id: Now.ID['report_builder_ui_page_read_acl'],
     type: 'ui_page',
-    name: 'x_1955226_connecto_report_builder',
+    name: 'x_peekl_snreports_report_builder',
     operation: 'read',
     roles: aclRoles,
 })
@@ -17,7 +17,7 @@ Acl({
 Acl({
     $id: Now.ID['report_builder_ui_page_execute_acl'],
     type: 'ui_page',
-    name: 'x_1955226_connecto_report_builder',
+    name: 'x_peekl_snreports_report_builder',
     operation: 'execute',
     roles: aclRoles,
 })
@@ -25,7 +25,7 @@ Acl({
 Acl({
     $id: Now.ID['report_builder_endpoint_ui_page_read_acl'],
     type: 'ui_page',
-    name: 'x_1955226_connecto_report_builder.do',
+    name: 'x_peekl_snreports_report_builder.do',
     operation: 'read',
     roles: aclRoles,
 })
@@ -33,7 +33,7 @@ Acl({
 Acl({
     $id: Now.ID['report_builder_endpoint_ui_page_execute_acl'],
     type: 'ui_page',
-    name: 'x_1955226_connecto_report_builder.do',
+    name: 'x_peekl_snreports_report_builder.do',
     operation: 'execute',
     roles: aclRoles,
 })
@@ -41,7 +41,7 @@ Acl({
 // ─── UI Page ──────────────────────────────────────────────────────────────────
 UiPage({
     $id: Now.ID['report-builder'],
-    endpoint: 'x_1955226_connecto_report_builder.do',
+    endpoint: 'x_peekl_snreports_report_builder.do',
     description: 'Peeklogic Report Builder',
     category: 'general',
     html: incidentPage,

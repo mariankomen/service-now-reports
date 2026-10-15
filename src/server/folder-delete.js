@@ -9,7 +9,7 @@
         }
 
         // ─── Check access — manager role required to delete ───────────────────
-        var access = new x_1955226_connecto.AccessService();
+        var access = new x_peekl_snreports.AccessService();
         if (!access.canAccess(folderId, 'folder', 'manager')) {
             response.setStatus(403);
             response.setBody({ success: false, error: 'Access denied. Manager role required.' });
@@ -17,7 +17,7 @@
         }
 
         // ─── Find folder record ───────────────────────────────────────────────
-        var gr = new GlideRecordSecure('x_1955226_connecto_folder');
+        var gr = new GlideRecordSecure('x_peekl_snreports_folder');
         gr.addQuery('sys_id', folderId);
         gr.setLimit(1);
         gr.query();
@@ -29,7 +29,7 @@
         }
 
         // ─── Move reports inside this folder to root before deleting ──────────
-        var reportsGR = new GlideRecordSecure('x_1955226_connecto_report');
+        var reportsGR = new GlideRecordSecure('x_peekl_snreports_report');
         reportsGR.addQuery('folderid', folderId);
         reportsGR.query();
         while (reportsGR.next()) {
@@ -38,7 +38,7 @@
         }
 
         // ─── Delete all share records for this folder ─────────────────────────
-        var shareGR = new GlideRecordSecure('x_1955226_connecto_share');
+        var shareGR = new GlideRecordSecure('x_peekl_snreports_share');
         shareGR.addQuery('item_id', folderId);
         shareGR.addQuery('item_type', 'folder');
         shareGR.deleteMultiple();

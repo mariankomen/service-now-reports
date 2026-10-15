@@ -9,7 +9,7 @@
         }
 
         // ─── Check access before fetching data ────────────────────────────────
-        var access = new x_1955226_connecto.AccessService();
+        var access = new x_peekl_snreports.AccessService();
         if (!access.canAccess(reportId, 'report', 'viewer')) {
             response.setStatus(403);
             response.setBody({ success: false, error: 'Access denied.' });
@@ -17,7 +17,7 @@
         }
 
         // ─── Fetch report record ──────────────────────────────────────────────
-        var gr = new GlideRecordSecure('x_1955226_connecto_report');
+        var gr = new GlideRecordSecure('x_peekl_snreports_report');
         gr.addQuery('sys_id', reportId);
         gr.setLimit(1);
         gr.query();
@@ -34,7 +34,7 @@
             folderId:                     gr.getValue('folderid'),
             owner:                        gr.getValue('owner'),
             ownerName:                    gr.getDisplayValue('owner'),
-            is_public:                    gr.getValue('is_public') == '1',
+            isPublic:                     gr.getValue('is_public') == '1',
             createdDate:                  gr.getValue('sys_created_on'),
             description:                  gr.getValue('description'),
             salesforceObject:             gr.getValue('sf_object_name'),

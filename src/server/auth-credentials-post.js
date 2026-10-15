@@ -11,7 +11,7 @@
         var userId = gs.getUserID();
 
         // ─── Find existing connection record for current user ─────────────────
-        var gr = new GlideRecordSecure('x_1955226_connecto_connection');
+        var gr = new GlideRecordSecure('x_peekl_snreports_connection');
         gr.addQuery('user_id', userId);
         gr.setLimit(1);
         gr.query();

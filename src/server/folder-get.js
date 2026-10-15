@@ -5,7 +5,7 @@
         var userId     = gs.getUserID();
 
         // ─── Build query based on type or folderId ────────────────────────────
-        var gr = new GlideRecordSecure('x_1955226_connecto_folder');
+        var gr = new GlideRecordSecure('x_peekl_snreports_folder');
         gr.addActiveQuery();
 
         if (folderId) {
@@ -18,7 +18,7 @@
         } else if (folderType === 'sharedwithmefolders') {
             // ─── Get folder IDs shared directly with current user ─────────────
             var sharedIds = [];
-            var shareGR = new GlideRecordSecure('x_1955226_connecto_share');
+            var shareGR = new GlideRecordSecure('x_peekl_snreports_share');
             shareGR.addQuery('item_type', 'folder');
             shareGR.addQuery('user_id', userId);
             shareGR.query();
@@ -56,7 +56,7 @@
         }
 
         // ─── Filter by access and add userRole in one pass ────────────────────
-        var access = new x_1955226_connecto.AccessService();
+        var access = new x_peekl_snreports.AccessService();
         var accessible = [];
         for (var i = 0; i < folders.length; i++) {
             var role = access.getRole(folders[i].sys_id, 'folder');

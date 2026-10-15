@@ -40,7 +40,8 @@
 
             req.setRequestBody(tokenBody);
 
-            var res = req.execute();
+            var res = req.executeAsync();
+            res.waitForResponse(60);
             var resStatus = res.getStatusCode();
             var parsed = JSON.parse(res.getBody());
 
@@ -51,7 +52,7 @@
             }
 
             // ─── Upsert connection record for current user ────────────────────
-            var gr = new GlideRecordSecure('x_1955226_connecto_connection');
+            var gr = new GlideRecordSecure('x_peekl_snreports_connection');
             gr.addQuery('user_id', userId);
             gr.setLimit(1);
             gr.query();

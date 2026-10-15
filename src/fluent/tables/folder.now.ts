@@ -1,8 +1,8 @@
 import '@servicenow/sdk/global'
 import { Table, StringColumn, BooleanColumn, ReferenceColumn, ListColumn } from '@servicenow/sdk/core'
 
-export const x_1955226_connecto_folder = Table({
-    name: 'x_1955226_connecto_folder',
+export const x_peekl_snreports_folder = Table({
+    name: 'x_peekl_snreports_folder',
     label: 'Folder',
     schema: {
         description: StringColumn({
@@ -23,7 +23,7 @@ export const x_1955226_connecto_folder = Table({
         }),
         parent_folder_id: ReferenceColumn({
             label: 'Parent Folder Id',
-            referenceTable: 'x_1955226_connecto_folder',
+            referenceTable: 'x_peekl_snreports_folder',
         }),
         shared_with: ListColumn({
             label: 'shared_with',

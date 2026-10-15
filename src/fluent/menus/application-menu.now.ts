@@ -3,7 +3,7 @@ import { ApplicationMenu, Record } from '@servicenow/sdk/core'
 import { peeklogicReportsUserRole } from '../security/roles.now'
 
 export const peeklogicAppMenu = ApplicationMenu({
-    $id: Now.ID['x_1955226_connecto_app_menu'],
+    $id: Now.ID['x_peekl_snreports_app_menu'],
     title: 'Peeklogic Reports',
     hint: 'Salesforce & ServiceNow Reports',
     description: 'Configure & View Reports',
@@ -14,7 +14,7 @@ export const peeklogicAppMenu = ApplicationMenu({
 })
 
 Record({
-    $id: Now.ID['x_1955226_connecto_app_connect'],
+    $id: Now.ID['x_peekl_snreports_app_connect'],
     table: 'sys_app_module',
     data: {
         title: 'Connection',
@@ -22,14 +22,14 @@ Record({
         link_type: 'DIRECT',
         active: true,
         order: 100,
-        query: 'x_1955226_connecto_report_builder.do?tab=connection',
+        query: 'x_peekl_snreports_report_builder.do?tab=connection',
         window_name: '_blank'
     },
     roles: [peeklogicReportsUserRole]
 
 })
 Record({
-    $id: Now.ID['x_1955226_connecto_app_module'],
+    $id: Now.ID['x_peekl_snreports_app_module'],
     table: 'sys_app_module',
     data: {
         title: 'Reports',
@@ -37,7 +37,7 @@ Record({
         link_type: 'DIRECT',
         active: true,
         order: 100,
-        query: 'x_1955226_connecto_report_builder.do?tab=main',
+        query: 'x_peekl_snreports_report_builder.do?tab=main',
         window_name: '_blank'
     },
     roles: [peeklogicReportsUserRole]
@@ -45,7 +45,7 @@ Record({
 })
 
 Record({
-    $id: Now.ID['x_1955226_connecto_support_module'],
+    $id: Now.ID['x_peekl_snreports_support_module'],
     table: 'sys_app_module',
     data: {
         title: 'Contact Support',
@@ -53,7 +53,7 @@ Record({
         link_type: 'DIRECT',
         active: true,
         order: 110,
-        query: 'x_1955226_connecto_report_builder.do?tab=support',
+        query: 'x_peekl_snreports_report_builder.do?tab=support',
         window_name: '_blank'
     },
     roles: [peeklogicReportsUserRole]
@@ -61,7 +61,7 @@ Record({
 })
 
 Record({
-    $id: Now.ID['x_1955226_connecto_privacy_module'],
+    $id: Now.ID['x_peekl_snreports_privacy_module'],
     table: 'sys_app_module',
     data: {
         title: 'App Privacy Policy',
@@ -69,7 +69,7 @@ Record({
         link_type: 'DIRECT',
         active: true,
         order: 120,
-        query: 'x_1955226_connecto_report_builder.do?tab=privacy',
+        query: 'x_peekl_snreports_report_builder.do?tab=privacy',
         window_name: '_blank'
     },
     roles: [peeklogicReportsUserRole]

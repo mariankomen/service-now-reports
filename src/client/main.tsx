@@ -1,4 +1,7 @@
 // main.tsx
+// Must stay the first import: undoes Prototype.js's Array.from override
+// before any library code runs
+import './utils/restoreArrayFrom';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './app';

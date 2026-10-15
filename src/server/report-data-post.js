@@ -33,7 +33,8 @@
         var showOnlyWithSF = body.showOnlyRecordsWithSalesforce === true || body.showOnlyRecordsWithSalesforce === '1';
 
         // ─── Pagination params ────────────────────────────────────────────────
-        var pageSize = parseInt(body.pageSize) || 200;
+        // Capped so one transaction stays within REST time and payload limits
+        var pageSize = Math.min(parseInt(body.pageSize) || 200, 2000);
         var page     = parseInt(body.page)     || 1;
         var offset   = (page - 1) * pageSize;
 
@@ -75,7 +76,6 @@
         }
 
         // ─── Get total count for pagination metadata ──────────────────────────
-        // ─── Get total count efficiently ──────────────────────────────────────────
         var countGA = new GlideAggregate(snObjectName);
         if (filterQuery) countGA.addEncodedQuery(filterQuery);
         countGA.addAggregate('COUNT');
@@ -86,7 +86,7 @@
         }
 
         // ─── Query ServiceNow records with pagination ──────────────────────────
-        var serviceNowGR = new GlideRecord(snObjectName);
+        var serviceNowGR = new GlideRecordSecure(snObjectName);
         if (filterQuery) serviceNowGR.addEncodedQuery(filterQuery);
         serviceNowGR.chooseWindow(offset, offset + pageSize);
         serviceNowGR.query();
@@ -106,7 +106,7 @@
             snIds.push(serviceNowData[n].sys_id);
         }
 
-        var sfService = new x_1955226_connecto.SalesforceRecordsService();
+        var sfService = new x_peekl_snreports.SalesforceRecordsService();
         var snIdToSfRecord = sfService.getLinkedRecords(sfObjectName, sfColumns, snIds);
 
         // ─── Build combined report rows ───────────────────────────────────────

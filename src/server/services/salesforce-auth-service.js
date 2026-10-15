@@ -70,7 +70,8 @@ SalesforceAuthService.prototype = {
             req.setRequestHeader('Authorization', 'Bearer ' + token);
             req.setRequestHeader('Accept', 'application/json');
 
-            var res = req.execute();
+            var res = req.executeAsync();
+            res.waitForResponse(60);
             return res.getStatusCode() === 200;
         } catch (e) {
             gs.warn('SalesforceAuthService: token validation failed: ' + e);
@@ -95,7 +96,8 @@ SalesforceAuthService.prototype = {
                 '&client_secret=' + encodeURIComponent(data.clientSecret)
             );
 
-            var res = req.execute();
+            var res = req.executeAsync();
+            res.waitForResponse(60);
             var parsed = JSON.parse(res.getBody());
 
             if (!parsed.access_token) {
@@ -103,13 +105,16 @@ SalesforceAuthService.prototype = {
             }
 
             // ─── Persist new access token ─────────────────────────────────────
-            var gr = new GlideRecordSecure('x_1955226_connecto_connection');
+            var gr = new GlideRecordSecure('x_peekl_snreports_connection');
             gr.addQuery('user_id', gs.getUserID());
             gr.setLimit(1);
             gr.query();
             if (gr.next()) {
                 gr.access_token = parsed.access_token;
                 gr.issued_at    = parsed.issued_at || '';
+                // With refresh token rotation Salesforce revokes the old refresh
+                // token and returns a new one, which must replace the stored value
+                if (parsed.refresh_token) gr.refresh_token = parsed.refresh_token;
                 gr.update();
             }
 
@@ -127,7 +132,7 @@ SalesforceAuthService.prototype = {
 
     // ─── Load current user's connection record from DB ────────────────────────
     _getConnection: function() {
-        var gr = new GlideRecordSecure('x_1955226_connecto_connection');
+        var gr = new GlideRecordSecure('x_peekl_snreports_connection');
         gr.addQuery('user_id', gs.getUserID());
         gr.setLimit(1);
         gr.query();

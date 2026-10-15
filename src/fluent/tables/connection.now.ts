@@ -1,8 +1,8 @@
 import '@servicenow/sdk/global'
 import { Table, StringColumn, Password2Column, ReferenceColumn } from '@servicenow/sdk/core'
 
-export const x_1955226_connecto_connection = Table({
-    name: 'x_1955226_connecto_connection',
+export const x_peekl_snreports_connection = Table({
+    name: 'x_peekl_snreports_connection',
     label: 'Connection',
     schema: {
         access_token: Password2Column({

@@ -1,10 +1,9 @@
 import React from 'react';
-// The ESM build is required: optional series types (funnel, treemap) only
-// register themselves against this instance when imported this way.
-import Highcharts from 'highcharts/esm/highcharts.js';
-import 'highcharts/esm/modules/funnel.js';
-import 'highcharts/esm/modules/treemap.js';
-import HighchartsReact from 'highcharts-react-official';
+import {
+  ResponsiveContainer, BarChart, LineChart, ComposedChart, PieChart, FunnelChart, Treemap,
+  Bar, Line, Scatter, Pie, Funnel, Cell, LabelList,
+  XAxis, YAxis, CartesianGrid, Tooltip, Legend,
+} from 'recharts';
 import { formatChartValue, type ChartValueFormat } from './chartFormat';
 import { getChartTypeDef, type ChartType } from './chartTypes';
 
@@ -29,6 +28,16 @@ interface ChartRendererProps {
 }
 
 const PALETTE = ['#0052CC', '#00A1E0', '#62B136', '#FF8B00', '#8777D9', '#00C7E6', '#FF5630', '#36B37E'];
+const TEXT    = '#42526E';
+const TICK    = { fontSize: 11, fill: TEXT };
+const LABEL   = { fontSize: 10, fontWeight: 500, fill: '#172B4D' };
+const TOTAL   = '__total';
+
+const colorAt = (index: number) => PALETTE[index % PALETTE.length];
+
+// Series values live under neutral keys so a series named like a row field
+// ("name", "__total") cannot clash with it
+const seriesKey = (index: number) => `s${index}`;
 
 const ChartRenderer: React.FC<ChartRendererProps> = ({
   model,
@@ -40,159 +49,253 @@ const ChartRenderer: React.FC<ChartRendererProps> = ({
   height = 300,
 }) => {
   const def = getChartTypeDef(chartType);
-  const format = (value: number) => formatChartValue(value, valueFormat);
+  const format = (value: unknown) => formatChartValue(Number(value), valueFormat);
+
+  // Axis ticks stay short: 12500 -> 12.5K, with the unit of the value format
+  const compact = new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 });
+  const formatTick = (value: unknown) => {
+    const text = compact.format(Number(value));
+    if (valueFormat === 'currency') return `$${text}`;
+    if (valueFormat === 'percent')  return `${text}%`;
+    return text;
+  };
+
+  // ─── Row per category, one column per series ──────────────────────────────
+  const rows = model.categories.map((name, index) => {
+    const row: Record<string, string | number> = { name };
+    let total = 0;
+    model.series.forEach((s, sIndex) => {
+      const value = s.data[index] ?? 0;
+      row[seriesKey(sIndex)] = value;
+      total += value;
+    });
+    row[TOTAL] = total;
+    return row;
+  });
 
   // Charts without an x-axis show one slice/leaf per category
   const pointList = model.categories.map((name, index) => ({
     name,
-    y: model.series[0]?.data[index] ?? 0,
+    value: model.series[0]?.data[index] ?? 0,
   }));
 
-  const baseOptions: Highcharts.Options = {
-    chart: { type: def.seriesType, height },
-    title: title ? { text: title, style: { fontSize: '14px', fontWeight: '600', color: '#172B4D' } } : { text: undefined },
-    credits: { enabled: false },
-    colors: PALETTE,
-    legend: { enabled: !!def.multiSeries },
-  };
+  const tooltip = (
+    <Tooltip
+      formatter={(value: any, name: any) => [format(value), name]}
+      labelStyle={{ fontWeight: 600, color: '#172B4D' }}
+      contentStyle={{ fontSize: 12, borderRadius: 4, borderColor: '#DFE1E6' }}
+    />
+  );
 
-  let options: Highcharts.Options;
+  const titleHeight = title ? 28 : 0;
+  const chartHeight = height - titleHeight;
+
+  let chart: React.ReactElement;
 
   if (def.seriesType === 'pie') {
-    options = {
-      ...baseOptions,
-      tooltip: {
-        pointFormatter(this: any) {
-          return `<b>${this.name}</b><br/>${seriesName}: <b>${format(this.y ?? 0)}</b><br/>Share: <b>${(this.percentage ?? 0).toFixed(1)}%</b>`;
-        },
-      },
-      plotOptions: {
-        pie: {
-          innerSize: '60%',
-          dataLabels: {
-            enabled: true,
-            format: '{point.name}: {point.percentage:.1f}%',
-            style: { fontSize: '11px', fontWeight: '500' },
-            distance: 15,
-          },
-        },
-      },
-      series: [{ type: 'pie', name: seriesName, data: pointList }] as any,
-    };
+    const sum = pointList.reduce((acc, p) => acc + p.value, 0) || 1;
+    const share = (value: number) => ((value / sum) * 100).toFixed(1);
+
+    chart = (
+      <PieChart>
+        <Tooltip
+          formatter={(value: any, name: any) => [`${format(value)} (${share(Number(value))}%)`, name || seriesName]}
+          contentStyle={{ fontSize: 12, borderRadius: 4, borderColor: '#DFE1E6' }}
+        />
+        <Pie
+          data={pointList}
+          dataKey="value"
+          nameKey="name"
+          innerRadius="50%"
+          outerRadius="75%"
+          paddingAngle={1}
+          label={({ name, value }: any) => `${name}: ${share(Number(value))}%`}
+          labelLine
+          style={{ fontSize: 11, fontWeight: 500 }}
+        >
+          {pointList.map((_, index) => <Cell key={index} fill={colorAt(index)} />)}
+        </Pie>
+      </PieChart>
+    );
 
   } else if (def.seriesType === 'funnel') {
-    options = {
-      ...baseOptions,
-      tooltip: {
-        pointFormatter(this: any) {
-          return `${seriesName}: <b>${format(this.y ?? 0)}</b>`;
-        },
-      },
-      plotOptions: {
-        funnel: {
-          dataLabels: {
-            enabled: true,
-            format: '{point.name}',
-            style: { fontSize: '11px', fontWeight: '500' },
-            softConnector: true,
-          },
-          center: ['40%', '50%'],
-          neckWidth: '30%',
-          neckHeight: '25%',
-          width: '70%',
-        },
-      } as any,
-      // Funnels read top-down, so the widest step comes first
-      series: [{
-        type: 'funnel',
-        name: seriesName,
-        data: pointList.slice().sort((a, b) => b.y - a.y),
-      }] as any,
-    };
+    // Funnels read top-down, so the widest step comes first
+    const steps = pointList.slice().sort((a, b) => b.value - a.value);
+    chart = (
+      <FunnelChart margin={{ top: 10, right: 140, bottom: 10, left: 20 }}>
+        <Tooltip
+          formatter={(value: any) => [format(value), seriesName]}
+          contentStyle={{ fontSize: 12, borderRadius: 4, borderColor: '#DFE1E6' }}
+        />
+        <Funnel data={steps} dataKey="value" nameKey="name" isAnimationActive>
+          {steps.map((_, index) => <Cell key={index} fill={colorAt(index)} />)}
+          <LabelList position="right" dataKey="name" fill="#172B4D" stroke="none" style={{ fontSize: 11, fontWeight: 500 }} />
+        </Funnel>
+      </FunnelChart>
+    );
 
   } else if (def.seriesType === 'treemap') {
-    options = {
-      ...baseOptions,
-      tooltip: {
-        pointFormatter(this: any) {
-          return `<b>${this.name}</b><br/>${seriesName}: <b>${format(this.value ?? 0)}</b>`;
-        },
-      },
-      series: [{
-        type: 'treemap',
-        layoutAlgorithm: 'squarified',
-        name: seriesName,
-        colorByPoint: true,
-        dataLabels: { enabled: true, style: { fontSize: '11px', fontWeight: '500', textOutline: 'none' } },
-        data: model.categories.map((name, index) => ({
-          name,
-          value: model.series[0]?.data[index] ?? 0,
-        })),
-      }] as any,
-    };
+    const leaves = pointList.map((p, index) => ({ ...p, fill: colorAt(index) }));
+    chart = (
+      <Treemap
+        data={leaves}
+        dataKey="value"
+        nameKey="name"
+        aspectRatio={4 / 3}
+        stroke="#fff"
+        content={<TreemapLeaf />}
+      >
+        <Tooltip
+          formatter={(value: any, _name: any, item: any) => [format(value), item?.payload?.name ?? seriesName]}
+          contentStyle={{ fontSize: 12, borderRadius: 4, borderColor: '#DFE1E6' }}
+        />
+      </Treemap>
+    );
 
   } else {
     // ─── Category based charts: bar, column, line, scatter and their stacks ──
-    options = {
-      ...baseOptions,
-      xAxis: {
-        categories: model.categories,
-        crosshair: true,
-        labels: { style: { fontSize: '11px', color: '#42526E' } },
-      },
-      yAxis: {
-        min: 0,
-        title: { text: yAxisLabel, style: { color: '#42526E', fontSize: '11px' } },
-        labels: {
-          style: { fontSize: '11px' },
-          formatter(this: any) {
-            const text = this.axis.defaultLabelFormatter.call(this);
-            if (valueFormat === 'currency') return `$${text}`;
-            if (valueFormat === 'percent')  return `${text}%`;
-            return text;
-          },
-        },
-        stackLabels: def.stacked ? { enabled: true, style: { fontSize: '10px', fontWeight: '600' } } : undefined,
-      },
-      tooltip: {
-        shared: !def.multiSeries,
-        headerFormat: '<b>{point.key}</b><br/>',
-        pointFormatter(this: any) {
-          return `${this.series.name}: <b>${format(this.y ?? 0)}</b><br/>`;
-        },
-      },
-      plotOptions: {
-        series: {
-          stacking: def.stacked ? 'normal' : undefined,
-          borderWidth: 0,
-          marker: def.seriesType === 'scatter' ? { radius: 5 } : { radius: 4 },
-          // Data labels only stay readable while a single series is drawn
-          dataLabels: {
-            enabled: !def.multiSeries && def.seriesType !== 'scatter',
-            style: { fontSize: '10px', fontWeight: '500' },
-            formatter(this: any) {
-              return format(this.y ?? 0);
-            },
-          },
-        },
-        column: { borderRadius: 3 },
-        bar: { borderRadius: 3 },
-      },
-      series: model.series.map((s, index) => ({
-        type: def.seriesType,
-        name: s.name,
-        data: s.data,
-        // A single-series bar chart looks better with a colour per category
-        colorByPoint: !def.multiSeries && (def.seriesType === 'column' || def.seriesType === 'bar'),
-        color: def.multiSeries ? PALETTE[index % PALETTE.length] : undefined,
-      })) as any,
-    };
+    const horizontal = def.seriesType === 'bar';
+    const single     = !def.multiSeries;
+    const lastIndex  = model.series.length - 1;
+
+    // Data labels only stay readable while a single series is drawn
+    const valueLabels = single && def.seriesType !== 'scatter';
+
+    const longestCategory = model.categories.reduce((max, c) => Math.max(max, (c ?? '').length), 0);
+    const categoryWidth   = Math.min(160, Math.max(60, longestCategory * 6 + 12));
+
+    const categoryAxis = horizontal
+      ? <YAxis type="category" dataKey="name" width={categoryWidth} tick={TICK} interval={0} />
+      : <XAxis dataKey="name" tick={TICK} interval="preserveStartEnd" />;
+
+    const valueAxis = horizontal
+      ? <XAxis type="number" tick={TICK} tickFormatter={formatTick} />
+      : (
+        <YAxis
+          type="number"
+          tick={TICK}
+          tickFormatter={formatTick}
+          label={{ value: yAxisLabel, angle: -90, position: 'insideLeft', style: { fill: TEXT, fontSize: 11, textAnchor: 'middle' } }}
+        />
+      );
+
+    const common = (
+      <>
+        <CartesianGrid strokeDasharray="3 3" stroke="#EBECF0" vertical={horizontal} horizontal={!horizontal} />
+        {categoryAxis}
+        {valueAxis}
+        {tooltip}
+        {!single && <Legend wrapperStyle={{ fontSize: 12 }} />}
+      </>
+    );
+
+    const margin = { top: 20, right: horizontal ? 48 : 16, bottom: 4, left: horizontal ? 4 : 8 };
+
+    if (def.seriesType === 'line') {
+      chart = (
+        <LineChart data={rows} margin={margin}>
+          {common}
+          {model.series.map((s, index) => (
+            <Line
+              key={s.name}
+              type="linear"
+              dataKey={seriesKey(index)}
+              name={s.name}
+              stroke={colorAt(index)}
+              strokeWidth={2}
+              dot={{ r: 4 }}
+              activeDot={{ r: 5 }}
+            >
+              {valueLabels && <LabelList dataKey={seriesKey(index)} position="top" formatter={format} style={LABEL} />}
+            </Line>
+          ))}
+        </LineChart>
+      );
+
+    } else if (def.seriesType === 'scatter') {
+      chart = (
+        <ComposedChart data={rows} margin={margin}>
+          {common}
+          {model.series.map((s, index) => (
+            <Scatter key={s.name} dataKey={seriesKey(index)} name={s.name} fill={colorAt(index)} />
+          ))}
+        </ComposedChart>
+      );
+
+    } else {
+      chart = (
+        <BarChart data={rows} layout={horizontal ? 'vertical' : 'horizontal'} margin={margin}>
+          {common}
+          {model.series.map((s, index) => {
+            const isTop = index === lastIndex;
+            // Rounded ends only on the outer segment of a stack
+            const radius: [number, number, number, number] = horizontal ? [0, 3, 3, 0] : [3, 3, 0, 0];
+            return (
+              <Bar
+                key={s.name}
+                dataKey={seriesKey(index)}
+                name={s.name}
+                fill={colorAt(index)}
+                stackId={def.stacked ? 'stack' : undefined}
+                radius={!def.stacked || isTop ? radius : 0}
+                maxBarSize={48}
+              >
+                {/* A single-series bar chart looks better with a colour per category */}
+                {single && rows.map((_, rowIndex) => <Cell key={rowIndex} fill={colorAt(rowIndex)} />)}
+                {valueLabels && (
+                  <LabelList dataKey={seriesKey(index)} position={horizontal ? 'right' : 'top'} formatter={format} style={LABEL} />
+                )}
+                {def.stacked && isTop && (
+                  <LabelList
+                    dataKey={TOTAL}
+                    position={horizontal ? 'right' : 'top'}
+                    formatter={format}
+                    style={{ ...LABEL, fontWeight: 600 }}
+                  />
+                )}
+              </Bar>
+            );
+          })}
+        </BarChart>
+      );
+    }
   }
 
   return (
     <div style={{ width: '100%', height }}>
-      <HighchartsReact highcharts={Highcharts} options={options} />
+      {title && (
+        <div style={{ height: titleHeight, textAlign: 'center', fontSize: 14, fontWeight: 600, color: '#172B4D', lineHeight: `${titleHeight}px` }}>
+          {title}
+        </div>
+      )}
+      <ResponsiveContainer width="100%" height={chartHeight}>
+        {chart}
+      </ResponsiveContainer>
     </div>
+  );
+};
+
+// ─── Treemap leaf: coloured box with the category name when it fits ─────────
+const TreemapLeaf: React.FC<any> = ({ x, y, width, height, name, fill, depth }) => {
+  if (depth === 0) return null;
+  const showLabel = width > 50 && height > 20;
+  return (
+    <g>
+      <rect x={x} y={y} width={width} height={height} fill={fill} stroke="#fff" strokeWidth={2} />
+      {showLabel && (
+        <text
+          x={x + width / 2}
+          y={y + height / 2}
+          textAnchor="middle"
+          dominantBaseline="middle"
+          fill="#fff"
+          fontSize={11}
+          fontWeight={500}
+        >
+          {name}
+        </text>
+      )}
+    </g>
   );
 };
 

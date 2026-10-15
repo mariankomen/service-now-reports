@@ -29,7 +29,7 @@ class SalesforceSObjectService {
     'X-UserToken': (window as any).g_ck || '',
   });
 
-  private baseUrl   = '/api/x_1955226_connecto/x_1955226_connecto_connector_api/salesforce';
+  private baseUrl   = '/api/x_peekl_snreports/x_peekl_snreports_connector_api/salesforce';
 
   private sobjectsPromise: Promise<SalesforceSObject[]> | null = null;
   private fieldsCache = new Map<string, Promise<SalesforceSObjectField[]>>();

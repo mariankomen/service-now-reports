@@ -5,7 +5,7 @@
         var userId     = gs.getUserID();
 
         // ─── Build query based on type or folderId ────────────────────────────
-        var gr = new GlideRecordSecure('x_1955226_connecto_report');
+        var gr = new GlideRecordSecure('x_peekl_snreports_report');
         gr.addActiveQuery();
 
         if (folderId) {
@@ -19,7 +19,7 @@
             // ─── Direct report shares ─────────────────────────────────────────
             var sharedIds = [];
 
-            var shareGR = new GlideRecordSecure('x_1955226_connecto_share');
+            var shareGR = new GlideRecordSecure('x_peekl_snreports_share');
             shareGR.addQuery('item_type', 'report');
             shareGR.addQuery('user_id', userId);
             shareGR.query();
@@ -28,13 +28,13 @@
             }
 
             // ─── Folder shares — include all reports inside shared folders ────
-            var folderShareGR = new GlideRecordSecure('x_1955226_connecto_share');
+            var folderShareGR = new GlideRecordSecure('x_peekl_snreports_share');
             folderShareGR.addQuery('item_type', 'folder');
             folderShareGR.addQuery('user_id', userId);
             folderShareGR.query();
             while (folderShareGR.next()) {
                 var sharedFolderId = folderShareGR.getValue('item_id');
-                var folderReportsGR = new GlideRecordSecure('x_1955226_connecto_report');
+                var folderReportsGR = new GlideRecordSecure('x_peekl_snreports_report');
                 folderReportsGR.addQuery('folderid', sharedFolderId);
                 folderReportsGR.addActiveQuery();
                 folderReportsGR.query();
@@ -59,7 +59,7 @@
 
         } else if (folderType === 'favorites') {
             // ─── Get current user's favorite report IDs ───────────────────────
-            var prefsGR = new GlideRecordSecure('x_1955226_connecto_user_prefs');
+            var prefsGR = new GlideRecordSecure('x_peekl_snreports_user_prefs');
             prefsGR.addQuery('user_id', userId);
             prefsGR.setLimit(1);
             prefsGR.query();
@@ -105,7 +105,7 @@
         }
 
         // ─── Filter by access and assign userRole in one pass ─────────────────
-        var access = new x_1955226_connecto.AccessService();
+        var access = new x_peekl_snreports.AccessService();
         var accessible = [];
         for (var i = 0; i < reports.length; i++) {
             var role = access.getRole(reports[i].sys_id, 'report');

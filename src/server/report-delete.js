@@ -9,7 +9,7 @@
         }
 
         // ─── Check access — manager role required to delete ───────────────────
-        var access = new x_1955226_connecto.AccessService();
+        var access = new x_peekl_snreports.AccessService();
         if (!access.canAccess(reportId, 'report', 'manager')) {
             response.setStatus(403);
             response.setBody({ success: false, error: 'Access denied. Manager role required.' });
@@ -17,7 +17,7 @@
         }
 
         // ─── Find report record ───────────────────────────────────────────────
-        var gr = new GlideRecordSecure('x_1955226_connecto_report');
+        var gr = new GlideRecordSecure('x_peekl_snreports_report');
         gr.addQuery('sys_id', reportId);
         gr.setLimit(1);
         gr.query();
@@ -29,7 +29,7 @@
         }
 
         // ─── Delete all share records for this report ─────────────────────────
-        var shareGR = new GlideRecordSecure('x_1955226_connecto_share');
+        var shareGR = new GlideRecordSecure('x_peekl_snreports_share');
         shareGR.addQuery('item_id', reportId);
         shareGR.addQuery('item_type', 'report');
         shareGR.deleteMultiple();

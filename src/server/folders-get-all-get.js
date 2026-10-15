@@ -1,7 +1,7 @@
 (function process(request, response) {
     try {
         // ─── Get all folders current user has access to ───────────────────────
-        var gr = new GlideRecordSecure('x_1955226_connecto_folder');
+        var gr = new GlideRecordSecure('x_peekl_snreports_folder');
         gr.query();
 
         var folders = [];
@@ -19,7 +19,7 @@
         }
 
         // ─── Filter by access and assign userRole in one pass ─────────────────
-        var access = new x_1955226_connecto.AccessService();
+        var access = new x_peekl_snreports.AccessService();
         var accessible = [];
         for (var i = 0; i < folders.length; i++) {
             var role = access.getRole(folders[i].sys_id, 'folder');

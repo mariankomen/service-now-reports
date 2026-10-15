@@ -27,8 +27,8 @@ class SalesforceAuthService {
     'X-UserToken': (window as any).g_ck || '',
   });
 
-  private validateUrl     = '/api/x_1955226_connecto/x_1955226_connecto_connector_api/credentials/validate';
-  private credentialsUrl  = '/api/x_1955226_connecto/x_1955226_connecto_connector_api/credentials';
+  private validateUrl     = '/api/x_peekl_snreports/x_peekl_snreports_connector_api/credentials/validate';
+  private credentialsUrl  = '/api/x_peekl_snreports/x_peekl_snreports_connector_api/credentials';
 
   // ─── PKCE (RFC 7636) — Salesforce requires Proof Key for Code Exchange ────
   async createPkcePair(): Promise<PkcePair> {

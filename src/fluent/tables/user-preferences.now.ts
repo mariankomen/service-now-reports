@@ -1,8 +1,8 @@
 import '@servicenow/sdk/global'
 import { Table, StringColumn, ReferenceColumn } from '@servicenow/sdk/core'
 
-export const x_1955226_connecto_user_prefs = Table({
-    name: 'x_1955226_connecto_user_prefs',
+export const x_peekl_snreports_user_prefs = Table({
+    name: 'x_peekl_snreports_user_prefs',
     label: 'User Preferences',
     schema: {
         favorites: StringColumn({

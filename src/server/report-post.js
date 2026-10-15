@@ -21,7 +21,7 @@
         }
 
         // ─── Create report record ─────────────────────────────────────────────
-        var gr = new GlideRecordSecure('x_1955226_connecto_report');
+        var gr = new GlideRecordSecure('x_peekl_snreports_report');
         gr.initialize();
         gr.name           = body.name;
         gr.folderid       = body.folderid       || 'root';

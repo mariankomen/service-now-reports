@@ -33,8 +33,8 @@ class ServiceNowTableService {
     'X-UserToken': (window as any).g_ck || '',
   });
 
-  private baseUrl        = '/api/x_1955226_connecto/x_1955226_connecto_connector_api/servicenow/tables';
-  private referenceUrl   = '/api/x_1955226_connecto/x_1955226_connecto_connector_api/servicenow/reference/search';
+  private baseUrl        = '/api/x_peekl_snreports/x_peekl_snreports_connector_api/servicenow/tables';
+  private referenceUrl   = '/api/x_peekl_snreports/x_peekl_snreports_connector_api/servicenow/reference/search';
   private fieldsBaseUrl  = '/api/now/v1/table/sys_dictionary';
   private choicesBaseUrl = '/api/now/v1/table/sys_choice';
 

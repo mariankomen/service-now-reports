@@ -20,7 +20,7 @@
         }
 
         // ─── Check access — manager role required to share ────────────────────
-        var access = new x_1955226_connecto.AccessService();
+        var access = new x_peekl_snreports.AccessService();
         if (!access.canAccess(itemId, itemType, 'manager')) {
             response.setStatus(403);
             response.setBody({ success: false, error: 'Access denied. Manager role required.' });
@@ -28,7 +28,7 @@
         }
 
         // ─── Prevent duplicate share records for same user + item ─────────────
-        var existing = new GlideRecordSecure('x_1955226_connecto_share');
+        var existing = new GlideRecordSecure('x_peekl_snreports_share');
         existing.addQuery('item_id', itemId);
         existing.addQuery('item_type', itemType);
         existing.addQuery('user_id', userId);
@@ -42,7 +42,7 @@
         }
 
         // ─── Create share record ──────────────────────────────────────────────
-        var gr = new GlideRecordSecure('x_1955226_connecto_share');
+        var gr = new GlideRecordSecure('x_peekl_snreports_share');
         gr.initialize();
         gr.item_id   = itemId;
         gr.item_type = itemType;

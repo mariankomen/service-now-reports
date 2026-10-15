@@ -106,7 +106,10 @@ const defaultFiltersBase: FilterConfig = {
   isPublic: false,
 };
 
-const PAGE_SIZE = 200;
+// Each page costs a REST round trip plus two Salesforce round trips (the server
+// sends its chunked queries concurrently), so fewer, larger pages load faster.
+// 2000 is the server-side maximum.
+const PAGE_SIZE = 2000;
 
 // ─── Role helpers ─────────────────────────────────────────────────────────────
 const canEdit  = (role?: string) => ['owner', 'manager', 'editor'].includes(role || '');

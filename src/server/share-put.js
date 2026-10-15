@@ -26,7 +26,7 @@
         }
 
         // ─── Find share record ────────────────────────────────────────────────
-        var gr = new GlideRecordSecure('x_1955226_connecto_share');
+        var gr = new GlideRecordSecure('x_peekl_snreports_share');
         gr.addQuery('sys_id', sysId);
         gr.setLimit(1);
         gr.query();
@@ -40,7 +40,7 @@
         // ─── Check access — manager role required to update share ─────────────
         var itemId   = gr.getValue('item_id');
         var itemType = gr.getValue('item_type');
-        var access   = new x_1955226_connecto.AccessService();
+        var access   = new x_peekl_snreports.AccessService();
 
         if (!access.canAccess(itemId, itemType, 'manager')) {
             response.setStatus(403);
